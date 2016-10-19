@@ -74,3 +74,19 @@ pre-filled with 20 Ether for use in transactions by default.
 
 If you want to change the amount of Ether for those accounts
 See ```files/genesis.json```.
+
+#### Interact with geth
+
+If you want to start mining or stop mining you need to connect to the node via:
+```
+docker exec -it ethereumdocker_geth_1 geth attach ipc://root/.ethereum/devchain/geth.ipc
+```
+Replace ethereumdocker_geth_1 with the container name you wish to connect to.
+
+#### Use existing DAG
+
+To speed up the process, you can use a pre-generated DAG. All you need to do is add something like this
+```
+ADD dag/full-R23-0000000000000000 /root/.ethash/full-R23-0000000000000000
+```
+to the monitored-geth-client Dockerfile.
