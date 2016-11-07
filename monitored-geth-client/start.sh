@@ -6,4 +6,6 @@ perl -pi -e "s/XXX/$(hostname)/g" app.json
 sleep 3
 /usr/bin/geth --datadir=~/.ethereum/devchain init "/root/files/genesis.json"
 sleep 3
-/usr/bin/geth $@
+BOOTSTRAP_IP=`getent hosts bootstrap | cut -d" " -f1`
+GETH_OPTS=${@/XXX/$BOOTSTRAP_IP}
+/usr/bin/geth $GETH_OPTS
