@@ -10,4 +10,3 @@ sleep 3
 BOOTSTRAP_IP=`getent hosts bootstrap | cut -d" " -f1`
 GETH_OPTS=${@/XXX/$BOOTSTRAP_IP}
 /geth $GETH_OPTS
-sleep 1000
