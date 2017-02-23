@@ -79,7 +79,7 @@ See ```files/genesis.json```.
 
 If you want to start mining or stop mining you need to connect to the node via:
 ```
-docker exec -it ethereumdocker_geth_1 geth attach ipc://root/.ethereum/devchain/geth.ipc
+docker exec -it ethereumdocker_eth_1 /geth attach ipc://root/.ethereum/devchain/geth.ipc
 ```
 Replace ethereumdocker_geth_1 with the container name you wish to connect to.
 
