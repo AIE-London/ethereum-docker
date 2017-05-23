@@ -8,7 +8,7 @@ services:
     links:
       - netstats
     entrypoint: /root/start.sh
-    command: '--datadir=~/.ethereum/devchain --nodekeyhex=091bd6067cb4612df85d9c1ff85cc47f259ced4d4cd99816b14f35650f59c322 --ipcapi="admin,db,eth,debug,miner,net,shh,txpool,personal,web3" --rpcapi "db,personal,eth,net,web3" --rpccorsdomain="*" --networkid=456719 --rpc --rpcaddr="0.0.0.0"'
+    command: '--datadir=~/.ethereum/devchain --nodekeyhex=091bd6067cb4612df85d9c1ff85cc47f259ced4d4cd99816b14f35650f59c322 --rpcapi "db,personal,eth,net,web3" --rpccorsdomain="*" --networkid=456719 --rpc --rpcaddr="0.0.0.0"'
     volumes:
       - ./files/password:/root/files/password:ro
       - ./files/genesis.json:/root/files/genesis.json:ro
