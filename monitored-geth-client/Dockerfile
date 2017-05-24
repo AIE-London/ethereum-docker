@@ -1,10 +1,7 @@
 FROM ethereum/client-go
 
-RUN apt-get update &&\
-    apt-get install -y curl git-core &&\
-    curl -sL https://deb.nodesource.com/setup_4.x | bash - &&\
-    apt-get update &&\
-    apt-get install -y nodejs
+RUN apk update &&\
+    apk add git nodejs bash perl
 
 RUN cd /root &&\
     git clone https://github.com/cubedro/eth-net-intelligence-api &&\
