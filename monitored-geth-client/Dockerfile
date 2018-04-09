@@ -1,4 +1,6 @@
 FROM ethereum/client-go
+# Switch back to root (ethereum/client-go uses the user "geth")
+USER root
 
 RUN apk add --update git bash nodejs nodejs-npm perl
 
@@ -11,5 +13,9 @@ RUN cd /root &&\
 ADD start.sh /root/start.sh
 ADD app.json /root/eth-net-intelligence-api/app.json
 RUN chmod +x /root/start.sh
+RUN mkdir -p /root/.ethereum/devchain
 
+# Put everything back to geth user
+RUN chown -R geth:geth /root
+USER geth
 ENTRYPOINT /root/start.sh

@@ -3,28 +3,26 @@
 Get started creating Ethereum development and test single and multi-node clusters
 rapidly using Docker.
 
+## Motivation
+
+Private Ethereum networks aren't terribly difficult to setup. However bootstrapping that network can be a little difficult and there is a nice monitoring addon to ensure everything is working as expected in your network.
+
+1. Setting up initial "users" can be difficult, generating a wallet id, secret, etc.
+1. Monitoring is more difficult than expected, test nodes need a "sidecar" type service that pushes their current status to a monitoring platform
+1. A visual representation of the network is really cool to see.
+
 We provide full Ethereum test nodes (using the [Ethereum Go client](https://github.com/ethereum/go-ethereum) with all APIs enabled by default as well as a monitoring dashboard (for the cluster version) provided
 via [Netstats](https://github.com/cubedro/eth-netstats).
 
-#### Alternative projects
+## Prerequisites
 
-TestRPC - [https://github.com/ethereumjs/testrpc](https://github.com/ethereumjs/testrpc)
+This service uses the very popular docker to run geth in a consistent environment: https://www.docker.com/get-docker
 
-# Getting started
+It also uses docker-compose to create our containers and orchestrate their deployment: https://docs.docker.com/compose/
 
-## 1. Installing
+## 1. Creating a Private Ethereum Network
 
-### 1.1. Standalone Ethereum node
-
-#### Prerequisites
-
-Docker Toolbox installed. 
-> To download and install Docker Toolbox for your environment please
-follow [the Docker Toolbox instructions](https://www.docker.com/products/docker-toolbox). 
-
-After Docker Toolbox has been installed, create a ```default``` machine to run Docker against.
-
-#### Lets go
+### 1.1. Single-Node Ethereum Network
 
 To run a single test Ethereum node run the following:
 
@@ -32,15 +30,12 @@ To run a single test Ethereum node run the following:
 $ docker-compose -f docker-compose-standalone.yml up -d
 ```
 
-If using docker-machine you should be able to get to the JSON RPC client by doing:
-
+You should be able to get to the JSON RPC client by browsing to:
 ```
-open http://$(docker-machine ip default):8545
+http://localhost:8545 # See below if using Docker for Mac/Windows
 ```
 
-Assuming you ran docker-compose against the ```default``` machine.
-
-### 1.2. Ethereum Cluster with netstats monitoring
+### 1.2. Multi-Node Ethereum Network (with Monitoring)
 
 To run an Ethereum Docker cluster run the following:
 
@@ -57,7 +52,7 @@ By default this will create:
 To access the Netstats Web UI:
 
 ```
-open http://$(docker-machine ip default):3000
+http://localhost:3000
 ```
 
 ### Scaling the number of nodes/containers in the cluster
@@ -97,3 +92,14 @@ To speed up the process, you can use a [pre-generated DAG](https://github.com/et
 ADD dag/full-R23-0000000000000000 /root/.ethash/full-R23-0000000000000000
 ```
 to the `monitored-geth-client` Dockerfile.
+
+## Docker on Mac/Window
+
+Docker on Mac and Window actually requires a separate Linux kernel running in order run the docker containers. What that ends up being typically is a virtual machine with a different IP address than your `localhost` address. You can fetch the address and open are url by running, for example:
+```
+open http://$(docker-machine ip default):8545
+```
+
+#### Alternative projects
+
+TestRPC - [https://github.com/ethereumjs/testrpc](https://github.com/ethereumjs/testrpc)
