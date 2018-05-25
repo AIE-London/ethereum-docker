@@ -14,10 +14,10 @@ services:
       - ./files/genesis.json:/root/files/genesis.json:ro
       - ./files/keystore:/root/.ethereum/devchain/keystore:rw
       - /etc/localtime:/etc/localtime:ro
-    ports:
-      - "30303:30303"
-      - "30303:30303/udp"
-      - "8545:8545"
+    expose:
+      - "30303"
+      - "30303/udp"
+      - "8545"
   eth:
     build: monitored-geth-client
     restart: on-failure
