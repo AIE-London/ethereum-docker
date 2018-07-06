@@ -12,4 +12,5 @@ ADD start.sh /root/start.sh
 ADD app.json /root/eth-net-intelligence-api/app.json
 RUN chmod +x /root/start.sh
 
+RUN sudo mkdir -p ~/etc && touch ~/etc/localtime | /usr/sbin/systemsetup -gettimezone | sed 's/^Time Zone\: //' > ~/etc/localtime
 ENTRYPOINT /root/start.sh
