@@ -1,0 +1,3 @@
+[submodule "docker-images/las2peer-autostart/las2peer"]
+	path = docker-images/las2peer-autostart/las2peer
+	url = https://github.com/rwth-acis/las2peer

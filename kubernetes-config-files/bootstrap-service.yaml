@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    io.kompose.service: bootstrap
+  name: bootstrap
+spec:
+  ports:
+  - name: "ethererum"
+    port: 30303
+    targetPort: 30303
+  - name: "ethereum-udp"
+    port: 30303
+    protocol: UDP
+    targetPort: 30303
+  - name: "http-rpc-api"
+    port: 8545
+    targetPort: 8545
+  - name: "ws-rpc-api"
+    port: 8546
+    targetPort: 8546
+  - name: "las2peer"
+    port: 9000
+    targetPort: 9000
+  selector:
+    io.kompose.service: bootstrap

@@ -1,0 +1,27 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  labels:
+    io.kompose.service: eth
+  name: eth
+spec:
+  containers:
+  - name: ethereum
+    args: ["--datadir ~/.ethereum/devchain --networkid 456719 --bootnodes enode://288b97262895b1c7ec61cf314c2e2004407d0a5dc77566877aad1f2a36659c8b698f4b56fd06c4a0c0bf007b4cfb3e7122d907da3b005fa90e724441902eb19e@XXX:30303 --mine --minerthreads 1"]
+    command: ["/root/start.sh"]
+    image: go-ethereum:monitored-client
+    imagePullPolicy: Always
+    ports:
+    - containerPort: 30303
+    - containerPort: 30303
+      protocol: UDP
+  - name: las2peer
+    image: las2peer:autostart
+    imagePullPolicy: Always
+    env:
+    - name: LAS2PEER_BOOTSTRAP
+      value: bootstrap:9000
+      # bootstrap IP is resolved via kube-dns
+    ports:
+    - containerPort: 9000
+  restartPolicy: OnFailure
