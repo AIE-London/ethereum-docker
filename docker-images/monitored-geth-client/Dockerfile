@@ -17,4 +17,7 @@ COPY ./genesis.json /root/files/genesis.json
 COPY ./keystore/ /root/.ethereum/devchain/keystore
 COPY ./localtime /etc/localtime
 
+WORKDIR /root
+RUN git clone https://github.com/vishnubob/wait-for-it.git
+
 ENTRYPOINT /root/start.sh
