@@ -1,11 +1,11 @@
 #!/bin/bash
 set -e
 
-ETH_PROPS_DIR=/root/las2peer/etc/
+ETH_PROPS_DIR=/app/las2peer/etc/
 ETH_PROPS=i5.las2peer.registry.data.RegistryConfiguration.properties
 
 function waitForEndpoint {
-    ~/wait-for-command/wait-for-command.sh -c "nc -z ${1} ${2:-80}" --time ${3:-10} --quiet
+    /app/wait-for-command/wait-for-command.sh -c "nc -z ${1} ${2:-80}" --time ${3:-10} --quiet
 }
 
 function host { echo ${1%%:*}; }
@@ -26,7 +26,7 @@ fi
 if [ -n "$LAS2PEER_ETH_HOST" ]; then
     echo Replacing Ethereum client host in config files ...
     sed -i "s|^endpoint.*$|endpoint = http://${LAS2PEER_ETH_HOST}:8545|" "${ETH_PROPS_DIR}${ETH_PROPS}"
-    sed -i "s/eth-bootstrap/${LAS2PEER_ETH_HOST}/" /root/las2peer-registry-contracts/truffle.js
+    sed -i "s/eth-bootstrap/${LAS2PEER_ETH_HOST}/" /app/las2peer-registry-contracts/truffle.js
     echo done.
 fi
 
@@ -36,12 +36,12 @@ else
     echo Waiting for Ethereum client ...
     if waitForEndpoint ${LAS2PEER_ETH_HOST} 8545 300; then
         echo Starting truffle migration ...
-        cd /root/las2peer-registry-contracts
+        cd /app/las2peer-registry-contracts
         ./node_modules/.bin/truffle migrate --network docker_boot 2>&1 | tee migration.log
         echo done. Setting contract addresses in config file ...
         cat migration.log | grep '^  \w*: 0x\w*$' | sed -e 's/:/Address =/;s/^  \(.\)/\L\1/' | tail -n 3 >> "${ETH_PROPS_DIR}${ETH_PROPS}"
         echo done. Serving config files at :8001 ...
-        cd /root/las2peer/
+        cd /app/las2peer/
         pm2 start --silent http-server -- ./etc -p 8001
     else
         echo Ethereum client not accessible. Aborting.
@@ -49,7 +49,7 @@ else
     fi
 fi
 
-cd /root/las2peer
+cd /app/las2peer
 if [ -n "$LAS2PEER_BOOTSTRAP" ]; then
     if waitForEndpoint $(host ${LAS2PEER_BOOTSTRAP}) $(port ${LAS2PEER_BOOTSTRAP}) 600; then
         echo Las2peer bootstrap available, continuing.
@@ -60,4 +60,4 @@ if [ -n "$LAS2PEER_BOOTSTRAP" ]; then
 fi
 
 echo Starting las2peer node ...
-java -cp "core/src/main/resources/:core/export/jars/*:restmapper/export/jars/*:webconnector/export/jars/*:core/lib/*:restmapper/lib/*:webconnector/lib/*" i5.las2peer.tools.L2pNodeLauncher --port $LAS2PEER_PORT $([ -n "$LAS2PEER_BOOTSTRAP" ] && echo "--bootstrap $LAS2PEER_BOOTSTRAP") --node-id-seed $RANDOM --ethereum-wallet "/root/keystore/UTC--2016-02-29T14-52-41.334222730Z--007ccffb7916f37f7aeef05e8096ecfbe55afc2f" startWebConnector "node=getNodeAsEthereumNode()" "registry=node.getRegistryClient()" "n=getNodeAsEthereumNode()" "r=n.getRegistryClient()" interactive
+java -cp "core/src/main/resources/:core/export/jars/*:restmapper/export/jars/*:webconnector/export/jars/*:core/lib/*:restmapper/lib/*:webconnector/lib/*" i5.las2peer.tools.L2pNodeLauncher --port $LAS2PEER_PORT $([ -n "$LAS2PEER_BOOTSTRAP" ] && echo "--bootstrap $LAS2PEER_BOOTSTRAP") --node-id-seed $RANDOM --ethereum-wallet "/app/keystore/UTC--2016-02-29T14-52-41.334222730Z--007ccffb7916f37f7aeef05e8096ecfbe55afc2f" startWebConnector "node=getNodeAsEthereumNode()" "registry=node.getRegistryClient()" "n=getNodeAsEthereumNode()" "r=n.getRegistryClient()" interactive
