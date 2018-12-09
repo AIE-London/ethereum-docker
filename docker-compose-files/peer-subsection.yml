@@ -30,7 +30,7 @@
         environment:
             - LAS2PEER_CONFIG_ENDPOINT=las2peer-boot:8001
             - LAS2PEER_BOOTSTRAP=las2peer-boot:9000
-            - LAS2PEER_ETH_HOST=ethereum-peer
+            - LAS2PEER_ETH_HOST=ethereum-peer-1
         ports:
             - "9000"
             - "9000/udp"
