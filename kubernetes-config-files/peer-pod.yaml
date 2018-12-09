@@ -16,7 +16,7 @@ spec:
     - containerPort: 30303
       protocol: UDP
   - name: las2peer
-    image: las2peer:autostart
+    image: las2peer:autostart-registry
     imagePullPolicy: Always
     env:
     - name: LAS2PEER_BOOTSTRAP

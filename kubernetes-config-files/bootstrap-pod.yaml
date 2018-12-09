@@ -9,7 +9,7 @@ spec:
   - name: ethereum
     args: ["--datadir ~/.ethereum/devchain --nodekeyhex 091bd6067cb4612df85d9c1ff85cc47f259ced4d4cd99816b14f35650f59c322 --networkid 456719 --rpc --rpcaddr 0.0.0.0 --rpcapi db,personal,eth,net,web3,miner --rpccorsdomain=* --ws --wsaddr 0.0.0.0 --wsapi db,personal,eth,net,web3,miner --wsorigins=* --mine --minerthreads 1 --unlock 0,1 --password /dev/null"]
     command: ["/root/start.sh"]
-    image: tjanson/go-ethereum:monitored-client
+    image: go-ethereum:monitored-client
     imagePullPolicy: Never
     ports:
     - containerPort: 30303
@@ -18,7 +18,7 @@ spec:
     - containerPort: 8545
     - containerPort: 8546
   - name: las2peer
-    image: tjanson/las2peer:autostart-dev
+    image: las2peer:autostart-registry
     imagePullPolicy: Never
     ports:
     - containerPort: 9000

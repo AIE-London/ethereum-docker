@@ -11,6 +11,7 @@ spec:
     - name: WS_SECRET
       value: eth-net-stats-secret
     image: go-ethereum:netstats
+    imagePullPolicy: Never
     name: netstats
     ports:
     - containerPort: 3000
