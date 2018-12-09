@@ -42,7 +42,7 @@ else
         cat migration.log | grep '^  \w*: 0x\w*$' | sed -e 's/:/Address =/;s/^  \(.\)/\L\1/' | tail -n 3 >> "${ETH_PROPS_DIR}${ETH_PROPS}"
         echo done. Serving config files at :8001 ...
         cd /root/las2peer/
-        pm2 start http-server -- ./etc -p 8001
+        pm2 start --silent http-server -- ./etc -p 8001
     else
         echo Ethereum client not accessible. Aborting.
         exit 2
