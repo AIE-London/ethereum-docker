@@ -2,7 +2,7 @@
 set -e
 
 ETH_PROPS_DIR=/root/las2peer/etc/
-ETH_PROPS=i5.las2peer.registryGateway.Registry.properties
+ETH_PROPS=i5.las2peer.registry.data.RegistryConfiguration.properties
 
 function waitForEndpoint {
     ~/wait-for-command/wait-for-command.sh -c "nc -z ${1} ${2:-80}" --time ${3:-10} --quiet
