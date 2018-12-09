@@ -4,7 +4,7 @@ RUN apk add --no-cache bash nodejs npm git python build-base htop curl sed wget 
 RUN npm i -g pm2 http-server
 
 WORKDIR /root
-RUN git clone https://github.com/rwth-acis/las2peer-registry-contracts.git
+RUN git clone https://github.com/rwth-acis/las2peer-registry-contracts.git # redo
 WORKDIR /root/las2peer-registry-contracts
 RUN npm install
 

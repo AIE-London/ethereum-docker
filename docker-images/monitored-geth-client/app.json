@@ -14,8 +14,8 @@
       "RPC_HOST"        : "localhost",
       "RPC_PORT"        : "8545",
       "LISTENING_PORT"  : "30303",
-      "INSTANCE_NAME"   : "XXX",
-      "WS_SERVER"       : "ws://netstats:3000",
+      "INSTANCE_NAME"   : "XXXXXX",
+      "WS_SERVER"       : "ws://YYYYYY",
       "WS_SECRET"       : "eth-net-stats-secret",
       "VERBOSITY"       : 2
     }
