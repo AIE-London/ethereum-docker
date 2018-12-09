@@ -5,8 +5,14 @@ set -e
 
 GETH_VERBOSITY=${GETH_VERBOSITY:-"3"}
 
+function waitForEndpoint {
+    ~/wait-for-command/wait-for-command.sh -c "nc -z ${1} ${2:-80}" --time ${3:-10} --quiet
+}
+function host { echo ${1%%:*}; }
+function port { echo ${1#*:}; }
+
 if [ -n "$ETHEREUM_MONITOR" ]; then
-    if ~/wait-for-it/wait-for-it.sh $ETHEREUM_MONITOR --timeout=30; then
+    if waitForEndpoint $(host $ETHEREUM_MONITOR) $(port $ETHEREUM_MONITOR) 30; then
         echo Connecting to Ethereum network stats monitor ...
         cd /root/eth-net-intelligence-api
         perl -pi -e "s/XXXXXX/$(hostname)/g" app.json
@@ -24,7 +30,7 @@ COMMON_OPTS="--verbosity $GETH_VERBOSITY --datadir ~/.ethereum/devchain --networ
 
 if [ -n "$ETHEREUM_BOOTSTRAP" ]; then
     echo Attempting to bootstrap Ethereum client ...
-    if ~/wait-for-it/wait-for-it.sh $ETHEREUM_BOOTSTRAP --timeout=60; then
+    if waitForEndpoint $(host $ETHEREUM_BOOTSTRAP) $(port $ETHEREUM_BOOTSTRAP) 120; then
         echo Bootstrap is up, connecting ...
 
         ETH_HOST=$(echo $ETHEREUM_BOOTSTRAP | cut -d':' -f1)
