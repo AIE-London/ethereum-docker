@@ -60,4 +60,4 @@ if [ -n "$LAS2PEER_BOOTSTRAP" ]; then
 fi
 
 echo Starting las2peer node ...
-java -cp "registrygateway/src/main/resources/:core/export/jars/*:registrygateway/export/jars/*:restmapper/export/jars/*:webconnector/export/jars/*:core/lib/*:registrygateway/lib/*:restmapper/lib/*:webconnector/lib/*" i5.las2peer.tools.L2pNodeLauncher --port $LAS2PEER_PORT $([ -n "$LAS2PEER_BOOTSTRAP" ] && echo "--bootstrap $LAS2PEER_BOOTSTRAP") --node-id-seed $RANDOM startWebConnector "node=getNode()" "registry=node.getRegistry()" "n=node" "r=registry" interactive
+java -cp "core/src/main/resources/:core/export/jars/*:restmapper/export/jars/*:webconnector/export/jars/*:core/lib/*:restmapper/lib/*:webconnector/lib/*" i5.las2peer.tools.L2pNodeLauncher --port $LAS2PEER_PORT $([ -n "$LAS2PEER_BOOTSTRAP" ] && echo "--bootstrap $LAS2PEER_BOOTSTRAP") --node-id-seed $RANDOM --ethereum-wallet "/root/keystore/UTC--2016-02-29T14-52-41.334222730Z--007ccffb7916f37f7aeef05e8096ecfbe55afc2f" startWebConnector "node=getNodeAsEthereumNode()" "registry=node.getRegistryClient()" "n=getNodeAsEthereumNode()" "r=n.getRegistryClient()" interactive
