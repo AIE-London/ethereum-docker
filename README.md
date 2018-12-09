@@ -1,5 +1,8 @@
 # las2peer / Ethereum deployment on Kubernetes clusters
 
+> **Status**: Currently the docker compose files are used. Kubernetes files worked a while ago, but are not currently being updated.
+> The description below is thus outdated.
+
 This repo contains Dockerfiles and Kubernetes configuration files that allow quickly deploying a network of las2peer / Ethereum nodes.
 
 Based on the `monitored-geth-client` and `eth-netstats` scripts in Capgemini’s [`ethereum-docker`](https://github.com/Capgemini-AIE/ethereum-docker).
