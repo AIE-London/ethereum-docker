@@ -12,7 +12,6 @@ ADD start.sh /root/start.sh
 ADD app.json /root/eth-net-intelligence-api/app.json
 RUN chmod +x /root/start.sh
 
-COPY ./password /root/files/password
 COPY ./genesis.json /root/files/genesis.json
 COPY ./keystore/ /root/.ethereum/devchain/keystore
 COPY ./localtime /etc/localtime
