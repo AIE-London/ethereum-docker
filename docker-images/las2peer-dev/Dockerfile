@@ -9,7 +9,7 @@ WORKDIR /root/las2peer-registry-contracts
 RUN npm install
 
 WORKDIR /root
-RUN git clone https://github.com/vishnubob/wait-for-it.git
+RUN git clone https://github.com/ettore26/wait-for-command
 
 COPY ./keystore /root/keystore
 COPY ./las2peer /root/las2peer

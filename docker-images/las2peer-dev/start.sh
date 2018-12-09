@@ -4,9 +4,16 @@ set -e
 ETH_PROPS_DIR=/root/las2peer/etc/
 ETH_PROPS=i5.las2peer.registryGateway.Registry.properties
 
+function waitForEndpoint {
+    ~/wait-for-command/wait-for-command.sh -c "nc -z ${1} ${2:-80}" --time ${3:-10} --quiet
+}
+
+function host { echo ${1%%:*}; }
+function port { echo ${1#*:}; }
+
 if [ -n "$LAS2PEER_CONFIG_ENDPOINT" ]; then
     echo Attempting to autoconfigure registry blockchain parameters ...
-    if ~/wait-for-it/wait-for-it.sh ${LAS2PEER_CONFIG_ENDPOINT} --timeout=300; then
+    if waitForEndpoint $(host ${LAS2PEER_CONFIG_ENDPOINT}) $(port ${LAS2PEER_CONFIG_ENDPOINT}) 600; then
         echo Downloading ...
         wget "http://${LAS2PEER_CONFIG_ENDPOINT}/${ETH_PROPS}" -O "${ETH_PROPS_DIR}${ETH_PROPS}"
         echo done.
@@ -27,7 +34,7 @@ if [ -n "$LAS2PEER_BOOTSTRAP" ]; then
     echo Skipping migration, contracts should already be deployed
 else
     echo Waiting for Ethereum client ...
-    if ~/wait-for-it/wait-for-it.sh ${LAS2PEER_ETH_HOST}:8545 --timeout=300; then
+    if waitForEndpoint ${LAS2PEER_ETH_HOST} 8545 300; then
         echo Starting truffle migration ...
         cd /root/las2peer-registry-contracts
         ./node_modules/.bin/truffle migrate --network docker_boot 2>&1 | tee migration.log
@@ -44,7 +51,7 @@ fi
 
 cd /root/las2peer
 if [ -n "$LAS2PEER_BOOTSTRAP" ]; then
-    if ~/wait-for-it/wait-for-it.sh ${LAS2PEER_BOOTSTRAP} --timeout=300; then
+    if waitForEndpoint $(host ${LAS2PEER_BOOTSTRAP}) $(port ${LAS2PEER_BOOTSTRAP}) 600; then
         echo Las2peer bootstrap available, continuing.
     else
         echo Las2peer bootstrap specified but not accessible. Aborting.
