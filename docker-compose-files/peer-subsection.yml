@@ -1,0 +1,41 @@
+    ethereum-peer-1:
+        container_name: ethereum-peer-1
+        hostname: ethereum-peer-1
+        depends_on: ["ethereum-monitor", "ethereum-boot"]
+        image: tjanson/go-ethereum:monitored-client
+        deploy:
+            replicas: 1
+            restart_policy:
+                condition: on-failure
+        environment:
+            - PEER_MINE=1
+            - ETHEREUM_BOOTSTRAP=ethereum-boot:30303
+            - ETHEREUM_MONITOR=ethereum-monitor:3000
+            - GETH_VERBOSITY=1
+        ports:
+            - "30303"
+            - "30303/udp"
+            - "8545"
+        networks:
+            - las2peernet
+    las2peer-peer-1:
+        container_name: las2peer-peer-1
+        hostname: las2peer-peer-1
+        depends_on: ["ethereum-peer-1", "las2peer-boot"]
+        image: tjanson/las2peer:autostart-registry
+        deploy:
+            replicas: 1
+            restart_policy:
+                condition: on-failure
+        environment:
+            - LAS2PEER_CONFIG_ENDPOINT=las2peer-boot:8001
+            - LAS2PEER_BOOTSTRAP=las2peer-boot:9000
+            - LAS2PEER_ETH_HOST=ethereum-peer
+        ports:
+            - "9000"
+            - "9000/udp"
+            - "8080"
+        networks:
+            - las2peernet
+        stdin_open: true
+        tty: true
