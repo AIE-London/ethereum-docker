@@ -1,4 +1,4 @@
-<las2peer:agent type="user">
+<las2peer:agent type="ethereum">
 	<id>236866d49817dce7fc7a4b19653fa8e536c45fc78b60fec99aa0d65d31036485ac664167da8a45883d94e978a770dab5865ef9ed6a47c55117a263701d56addc</id>
 	<publickey encoding="base64">rO0ABXNyABRqYXZhLnNlY3VyaXR5LktleVJlcL35T7OImqVDAgAETAAJYWxnb3JpdGhtdAASTGphdmEvbGFuZy9TdHJpbmc7WwAHZW5jb2RlZHQAAltCTAAGZm9ybWF0cQB+AAFMAAR0eXBldAAbTGphdmEvc2VjdXJpdHkvS2V5UmVwJFR5cGU7eHB0AANSU0F1cgACW0Ks8xf4BghU4AIAAHhwAAABJjCCASIwDQYJKoZIhvcNAQEBBQADggEPADCCAQoCggEBAOCGXVm2W/2Jb69P/Tr6jET3AEAK0KrvmEMm7PzwLZUzRjiEsIJ3tiFOiwZ9UE60aq59kV5W/q6Xd8af3WJrdOSXkb1vd7pi2FQVxZmYrMVRRrIcuT/rfB027RR7FagPylQUsDAm9UqWAdh/GuPCohsi/1ztWU0KXHUVj5/ymAF8HZwbhLyUe2U8LO1XlGc1wCta4r2LVuiFvEKD1HcisulMspJWjcNL1i5XUsRgaHUIu+rzINTe3OflPRXsePh1r73EbVe+mz8Jw/Y1UQZqlnPsBfb7n2m9QEW7dj9iU2uU4Td+H5WQP7IJcrXWx5PLDtK9LMIysNg2yuwGLiHaCAcCAwEAAXQABVguNTA5fnIAGWphdmEuc2VjdXJpdHkuS2V5UmVwJFR5cGUAAAAAAAAAABIAAHhyAA5qYXZhLmxhbmcuRW51bQAAAAAAAAAAEgAAeHB0AAZQVUJMSUM=</publickey>
 	<privatekey encrypted="AES" keygen="PBKDF2WithHmacSHA1">
@@ -7,4 +7,5 @@
 	</privatekey>
 	<login>alice</login>
 	<email>alice@example.org</email>
+    <ethereumwalletpath>/app/las2peer/etc/agents/wallet-alice.json</ethereumwalletpath>
 </las2peer:agent>
