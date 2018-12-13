@@ -59,5 +59,18 @@ if [ -n "$LAS2PEER_BOOTSTRAP" ]; then
     fi
 fi
 
+# it's realistic for different nodes to use different wallets (i.e., to have
+# different node operators). this function echos the N-th wallet if the
+# hostname is "something-something-N". if not, first wallet is used
+function selectWallet {
+    PEER_NUM=$(hostname | cut -d'-' -f3) # get N out of las2peer-peer-N
+    wallets=(/app/keystore/*)
+    if [[ $PEER_NUM =~ ^[0-9]+$ && $PEER_NUM -lt ${#wallets[@]} ]]; then
+        echo "${wallets[$PEER_NUM]}"
+    else
+        echo "${wallets[0]}"
+    fi
+}
+
 echo Starting las2peer node ...
-java -cp "core/src/main/resources/:core/export/jars/*:restmapper/export/jars/*:webconnector/export/jars/*:core/lib/*:restmapper/lib/*:webconnector/lib/*" i5.las2peer.tools.L2pNodeLauncher --port $LAS2PEER_PORT $([ -n "$LAS2PEER_BOOTSTRAP" ] && echo "--bootstrap $LAS2PEER_BOOTSTRAP") --node-id-seed $RANDOM --ethereum-wallet "/app/keystore/UTC--2016-02-29T14-52-41.334222730Z--007ccffb7916f37f7aeef05e8096ecfbe55afc2f" startWebConnector "node=getNodeAsEthereumNode()" "registry=node.getRegistryClient()" "n=getNodeAsEthereumNode()" "r=n.getRegistryClient()" interactive
+java -cp "core/src/main/resources/:core/export/jars/*:restmapper/export/jars/*:webconnector/export/jars/*:core/lib/*:restmapper/lib/*:webconnector/lib/*" i5.las2peer.tools.L2pNodeLauncher --port $LAS2PEER_PORT $([ -n "$LAS2PEER_BOOTSTRAP" ] && echo "--bootstrap $LAS2PEER_BOOTSTRAP") --node-id-seed $RANDOM --ethereum-wallet "$(selectWallet)"  startWebConnector "node=getNodeAsEthereumNode()" "registry=node.getRegistryClient()" "n=getNodeAsEthereumNode()" "r=n.getRegistryClient()" interactive
