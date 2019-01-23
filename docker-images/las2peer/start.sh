@@ -1,4 +1,5 @@
 #!/bin/bash
+# note: not sh or zsh compatible
 set -e
 
 ETH_PROPS_DIR=/app/las2peer/etc/
@@ -69,7 +70,8 @@ function selectMnemonic {
     if [[ $PEER_NUM =~ ^[0-9]+$ && $PEER_NUM -lt ${#mnemonics[@]} ]]; then
         echo "${mnemonics[$PEER_NUM]}"
     else
-        echo "${mnemonics[1]}"
+        # note: zsh and others use 1-based indexing. this requires bash
+        echo "${mnemonics[0]}"
     fi
 }
 

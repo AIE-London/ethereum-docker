@@ -3,7 +3,7 @@ set -e
 #set -o verbose # see commands as they are executed
 #set -o xtrace # see even more, including variable assignments
 
-GETH_VERBOSITY=${GETH_VERBOSITY:-"3"}
+GETH_VERBOSITY=${GETH_VERBOSITY:-"5"}
 
 function waitForEndpoint {
     ~/wait-for-command/wait-for-command.sh -c "nc -z ${1} ${2:-80}" --time ${3:-10} --quiet
@@ -23,10 +23,34 @@ if [ -n "$ETHEREUM_MONITOR" ]; then
     fi
 fi
 
+# these should match the mnemonics provided to las2peer
+#function selectWallet {
+#    PEER_NUM=$(hostname | cut -d'-' -f3) # get N out of ethereum-peer-N
+#    wallets=(/app/keystore/*)
+#    if [[ $PEER_NUM =~ ^[0-9]+$ && $PEER_NUM -lt ${#wallets[@]} ]]; then
+#        echo "${wallets[$PEER_NUM]}"
+#    else
+#        # note: zsh and others use 1-based indexing. this requires bash
+#        echo "${wallets[0]}"
+#    fi
+#}
+
+# actually, never mind, we can just pass the index, that's simpler:
+function selectAccountIndex {
+    PEER_NUM=$(hostname | cut -d'-' -f3) # get N out of ethereum-peer-N
+    wallets=(/app/keystore/*)
+    # still check that we don't select an index that's too large
+    if [[ $PEER_NUM =~ ^[0-9]+$ && $PEER_NUM -lt ${#wallets[@]} ]]; then
+        echo $PEER_NUM
+    else
+        echo 0
+    fi
+}
+
 echo Initializing blockchain from genesis file ...
 geth --datadir=~/.ethereum/devchain init "/root/files/genesis.json"
 
-COMMON_OPTS="--verbosity $GETH_VERBOSITY --datadir ~/.ethereum/devchain --networkid 456719 --rpc --rpcaddr 0.0.0.0 --rpcapi db,personal,eth,net,web3,miner --rpccorsdomain=* --rpcvhosts=* --ws --wsaddr 0.0.0.0 --wsapi db,personal,eth,net,web3,miner --wsorigins=* --unlock 0,1 --password /dev/null"
+COMMON_OPTS="--verbosity $GETH_VERBOSITY --datadir ~/.ethereum/devchain --networkid 456719 --rpc --rpcaddr 0.0.0.0 --rpcapi db,personal,eth,net,web3,miner --rpccorsdomain=* --rpcvhosts=* --ws --wsaddr 0.0.0.0 --wsapi db,personal,eth,net,web3,miner --wsorigins=* --unlock 0,1 --password /dev/null --etherbase $(selectAccountIndex)"
 
 if [ -n "$ETHEREUM_BOOTSTRAP" ]; then
     echo Attempting to bootstrap Ethereum client ...
