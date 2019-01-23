@@ -39,7 +39,8 @@ else
         cd /app/las2peer-registry-contracts
         ./node_modules/.bin/truffle migrate --network docker_boot 2>&1 | tee migration.log
         echo done. Setting contract addresses in config file ...
-        cat migration.log | grep '^  \w*: 0x\w*$' | sed -e 's/:/Address =/;s/^  \(.\)/\L\1/' | tail -n 3 >> "${ETH_PROPS_DIR}${ETH_PROPS}"
+        # yeah, this isn't fun:
+        cat migration.log | grep -A5 '\(CommunityTagIndex\|UserRegistry\|ServiceRegistry\)' | grep '\(Deploying\|Replacing\|contract address\)' | tr -d " '>:" | sed -e '$!N;s/\n//;s/Deploying//;s/Replacing//;s/contractaddress/Address = /;s/./\l&/' >> "${ETH_PROPS_DIR}${ETH_PROPS}"
         echo done. Serving config files at :8001 ...
         cd /app/las2peer/
         pm2 start --silent http-server -- ./etc -p 8001
