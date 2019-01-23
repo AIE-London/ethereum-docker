@@ -25,7 +25,7 @@ RUN npm install
 WORKDIR /app
 RUN git clone https://github.com/rwth-acis/las2peer.git -b registry-gateway
 WORKDIR /app/las2peer
-RUN ant build-modules-only
+RUN ant build-only-no-bundle
 RUN mkdir -p /app/las2peer/log
 RUN mkdir -p /app/las2peer/node-storage
 
