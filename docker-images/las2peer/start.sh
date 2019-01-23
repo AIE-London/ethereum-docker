@@ -59,18 +59,18 @@ if [ -n "$LAS2PEER_BOOTSTRAP" ]; then
     fi
 fi
 
-# it's realistic for different nodes to use different wallets (i.e., to have
-# different node operators). this function echos the N-th wallet if the
-# hostname is "something-something-N". if not, first wallet is used
-function selectWallet {
+# it's realistic for different nodes to use different accounts (i.e., to have
+# different node operators). this function echos the N-th mnemonic if the
+# hostname is "something-something-N". if not, first mnemonic is used
+function selectMnemonic {
     PEER_NUM=$(hostname | cut -d'-' -f3) # get N out of las2peer-peer-N
-    wallets=(/app/keystore/*)
-    if [[ $PEER_NUM =~ ^[0-9]+$ && $PEER_NUM -lt ${#wallets[@]} ]]; then
-        echo "${wallets[$PEER_NUM]}"
+    declare -a mnemonics=("differ employ cook sport clinic wedding melody column pave stuff oak price" "memory wrist half aunt shrug elbow upper anxiety maximum valve finish stay" "alert sword real code safe divorce firm detect donate cupboard forward other" "pair stem change april else stage resource accident will divert voyage lawn" "lamp elbow happy never cake very weird mix episode either chimney episode" "cool pioneer toe kiwi decline receive stamp write boy border check retire" "obvious lady prize shrimp taste position abstract promote market wink silver proof" "tired office manage bird scheme gorilla siren food abandon mansion field caution" "resemble cattle regret priority hen six century hungry rice grape patch family" "access crazy can job volume utility dial position shaft stadium soccer seven")
+    if [[ $PEER_NUM =~ ^[0-9]+$ && $PEER_NUM -lt ${#mnemonics[@]} ]]; then
+        echo "${mnemonics[$PEER_NUM]}"
     else
-        echo "${wallets[0]}"
+        echo "${mnemonics[1]}"
     fi
 }
 
 echo Starting las2peer node ...
-java -cp "core/src/main/resources/:core/export/jars/*:restmapper/export/jars/*:webconnector/export/jars/*:core/lib/*:restmapper/lib/*:webconnector/lib/*" i5.las2peer.tools.L2pNodeLauncher --port $LAS2PEER_PORT $([ -n "$LAS2PEER_BOOTSTRAP" ] && echo "--bootstrap $LAS2PEER_BOOTSTRAP") --node-id-seed $RANDOM --ethereum-wallet "$(selectWallet)"  startWebConnector "node=getNodeAsEthereumNode()" "registry=node.getRegistryClient()" "n=getNodeAsEthereumNode()" "r=n.getRegistryClient()" interactive
+java -cp "core/src/main/resources/:core/export/jars/*:restmapper/export/jars/*:webconnector/export/jars/*:core/lib/*:restmapper/lib/*:webconnector/lib/*" i5.las2peer.tools.L2pNodeLauncher --port $LAS2PEER_PORT $([ -n "$LAS2PEER_BOOTSTRAP" ] && echo "--bootstrap $LAS2PEER_BOOTSTRAP") --node-id-seed $RANDOM --ethereum-mnemonic "$(selectMnemonic)"  startWebConnector "node=getNodeAsEthereumNode()" "registry=node.getRegistryClient()" "n=getNodeAsEthereumNode()" "r=n.getRegistryClient()" interactive
