@@ -38,7 +38,7 @@ fi
 # actually, never mind, we can just pass the index, that's simpler:
 function selectAccountIndex {
     PEER_NUM=$(hostname | cut -d'-' -f3) # get N out of ethereum-peer-N
-    wallets=(/app/keystore/*)
+    wallets=(/root/.ethereum/devchain/keystore/*)
     # still check that we don't select an index that's too large
     if [[ $PEER_NUM =~ ^[0-9]+$ && $PEER_NUM -lt ${#wallets[@]} ]]; then
         echo $PEER_NUM
