@@ -50,7 +50,7 @@ function selectAccountIndex {
 echo Initializing blockchain from genesis file ...
 geth --datadir=~/.ethereum/devchain init "/root/files/genesis.json"
 
-COMMON_OPTS="--verbosity $GETH_VERBOSITY --datadir ~/.ethereum/devchain --networkid 456719 --rpc --rpcaddr 0.0.0.0 --rpcapi db,personal,eth,net,web3,miner --rpccorsdomain=* --rpcvhosts=* --ws --wsaddr 0.0.0.0 --wsapi db,personal,eth,net,web3,miner --wsorigins=* --unlock 0,1 --password /dev/null --etherbase $(selectAccountIndex)"
+COMMON_OPTS="--verbosity $GETH_VERBOSITY --datadir ~/.ethereum/devchain --networkid 456719 --rpc --rpcaddr 0.0.0.0 --rpcapi db,personal,eth,net,web3,miner,admin --rpccorsdomain=* --rpcvhosts=* --ws --wsaddr 0.0.0.0 --wsapi db,personal,eth,net,web3,miner,admin --wsorigins=* --unlock 0,1 --password /dev/null --etherbase $(selectAccountIndex)"
 
 if [ -n "$ETHEREUM_BOOTSTRAP" ]; then
     echo Attempting to bootstrap Ethereum client ...
