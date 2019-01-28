@@ -1,0 +1,21 @@
+    las2peer-peer-1:
+        container_name: las2peer-peer-1
+        hostname: las2peer-peer-1
+        depends_on: ["ganache", "las2peer-boot"]
+        image: tjanson/las2peer:autostart-registry
+        deploy:
+            replicas: 1
+            restart_policy:
+                condition: on-failure
+        environment:
+            - LAS2PEER_CONFIG_ENDPOINT=las2peer-boot:8001
+            - LAS2PEER_BOOTSTRAP=las2peer-boot:9000
+            - LAS2PEER_ETH_HOST=ganache
+        ports:
+            - "9000"
+            - "9000/udp"
+            - "8081:8080"
+        networks:
+            - las2peernet
+        stdin_open: true
+        tty: true
