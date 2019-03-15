@@ -8,11 +8,11 @@ echo "    E.g., the difficulty-1 tag should be available, but that actully doesn
 echo "    For the seed network using 1 CPU core (total), difficulty-400000 was used."
 
 NUMBER_NODES=${1:-5}
-NUMBER_PEERS="$(($NUMBER_NODES-1))"
 FILENAME="${2:-$NUMBER_NODES-nodes.docker-compose.yml}"
-DIFFICULTY=${3:-1}
-
 TOTAL_CORES=${3:-1}
+DIFFICULTY=${4:-1}
+
+NUMBER_PEERS="$(($NUMBER_NODES-1))"
 CPU_LIMIT=$(echo $(( 100 * $TOTAL_CORES / $NUMBER_NODES )) | sed 's/..$/.&/')
 
 echo "    Using: Number nodes: $NUMBER_NODES"
