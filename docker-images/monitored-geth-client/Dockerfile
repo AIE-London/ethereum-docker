@@ -1,4 +1,4 @@
-FROM tjanson/go-ethereum:easy-difficulty
+FROM rwthacis/fast-geth
 
 RUN apk add --update git bash nodejs nodejs-npm perl
 
