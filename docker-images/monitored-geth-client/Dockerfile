@@ -1,4 +1,4 @@
-FROM rwthacis/fast-geth
+FROM rwth-acis/fast-geth:difficulty-1
 
 RUN apk add --update git bash nodejs nodejs-npm perl
 
