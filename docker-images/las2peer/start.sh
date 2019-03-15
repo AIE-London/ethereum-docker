@@ -16,6 +16,8 @@ EXTRA_ETH_WAIT=${EXTRA_ETH_WAIT:-30}
 # kills us), but let's go for a solid six hours
 CONFIG_ENDPOINT_WAIT=${CONFIG_ENDPOINT_WAIT:-21600}
 
+NODE_ID_SEED=${NODE_ID_SEED:-$RANDOM}
+
 ETH_PROPS_DIR=/app/las2peer/etc/
 ETH_PROPS=i5.las2peer.registry.data.RegistryConfiguration.properties
 
@@ -95,4 +97,4 @@ function selectMnemonic {
 }
 
 echo Starting las2peer node ...
-java $(echo $ADDITIONAL_JAVA_ARGS) -cp "core/src/main/resources/:core/export/jars/*:restmapper/export/jars/*:webconnector/export/jars/*:core/lib/*:restmapper/lib/*:webconnector/lib/*" i5.las2peer.tools.L2pNodeLauncher --service-directory service --port $LAS2PEER_PORT $([ -n "$LAS2PEER_BOOTSTRAP" ] && echo "--bootstrap $LAS2PEER_BOOTSTRAP") --node-id-seed $RANDOM --ethereum-mnemonic "$(selectMnemonic)" $(echo $ADDITIONAL_LAUNCHER_ARGS) startWebConnector "node=getNodeAsEthereumNode()" "registry=node.getRegistryClient()" "n=getNodeAsEthereumNode()" "r=n.getRegistryClient()" $(echo $ADDITIONAL_PROMPT_CMDS) interactive
+java $(echo $ADDITIONAL_JAVA_ARGS) -cp "core/src/main/resources/:core/export/jars/*:restmapper/export/jars/*:webconnector/export/jars/*:core/lib/*:restmapper/lib/*:webconnector/lib/*" i5.las2peer.tools.L2pNodeLauncher --service-directory service --port $LAS2PEER_PORT $([ -n "$LAS2PEER_BOOTSTRAP" ] && echo "--bootstrap $LAS2PEER_BOOTSTRAP") --node-id-seed $NODE_ID_SEED --ethereum-mnemonic "$(selectMnemonic)" $(echo $ADDITIONAL_LAUNCHER_ARGS) startWebConnector "node=getNodeAsEthereumNode()" "registry=node.getRegistryClient()" "n=getNodeAsEthereumNode()" "r=n.getRegistryClient()" $(echo $ADDITIONAL_PROMPT_CMDS) interactive
