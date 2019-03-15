@@ -1,4 +1,4 @@
-version: "3"
+version: "2.2"
 networks:
     las2peernet:
 services:
