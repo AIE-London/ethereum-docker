@@ -5,14 +5,10 @@ services:
     ethereum-monitor:
         hostname: ethereum-monitor
         container_name: ethereum-monitor
-        image: tjanson/go-ethereum:netstats
+        image: rwthacis/eth-netstats
         command: ["/bin/sh", "-c", "npm start > netstats.log 2>&1"]
-        deploy:
-            replicas: 1
-            restart_policy:
-                condition: on-failure
         environment:
-            - WS_SECRET=eth-net-stats-secret
+            - "WS_SECRET=eth-net-stats-secret"
         ports:
             - "3000:3000"
         networks:
@@ -21,14 +17,10 @@ services:
         hostname: ethereum-boot
         container_name: ethereum-boot
         depends_on: ["ethereum-monitor"]
-        image: tjanson/go-ethereum:monitored-client
-        deploy:
-            replicas: 1
-            restart_policy:
-                condition: on-failure
+        image: rwthacis/monitored-eth-client
         environment:
-            - ETHEREUM_MONITOR=ethereum-monitor:3000
-            - GETH_VERBOSITY=1
+            - "ETHEREUM_MONITOR=ethereum-monitor:3000"
+            - "GETH_VERBOSITY=3"
         ports:
             - "30303"
             - "30303/udp"
@@ -39,13 +31,9 @@ services:
         hostname: las2peer-boot
         container_name: las2peer-boot
         depends_on: ["ethereum-boot"]
-        image: tjanson/las2peer:autostart-registry
-        deploy:
-            replicas: 1
-            restart_policy:
-                condition: none # clean recovery not yet implemented
+        image: rwthacis/las2peer
         environment:
-            - LAS2PEER_ETH_HOST=ethereum-boot
+            - "LAS2PEER_ETH_HOST=ethereum-boot"
         ports:
             - "9000"
             - "9000/udp"
