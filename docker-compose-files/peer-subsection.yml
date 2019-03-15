@@ -24,6 +24,7 @@
             - "LAS2PEER_CONFIG_ENDPOINT=172.18.0.10:8001"
             - "LAS2PEER_BOOTSTRAP=172.18.0.10:9000"
             - "LAS2PEER_ETH_HOST=ethereum-peer-1"
+            - "NODE_ID_SEED=1"
         ports:
             - "9000"
             - "9000/udp"

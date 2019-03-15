@@ -35,6 +35,9 @@ services:
         image: rwthacis/las2peer
         environment:
             - "LAS2PEER_ETH_HOST=ethereum-boot"
+            - "NODE_ID_SEED=0"
+        volumes:
+            - ./node-storage:/app/las2peer/node-storage
         ports:
             - "9000"
             - "9000/udp"

@@ -31,7 +31,11 @@ echo "    (If you want something different, change var in script.)"
 
 sed -e "s/CPULIMIT/$CPU_LIMIT/g" -e "s/DIFFICULTY/$DIFFICULTY/g" boot-only.docker-compose.yml > $FILENAME
 for (( i=1; i<=$NUMBER_PEERS; i++ )); do
-    sed -e "s/peer-1/peer-$i/g" -e "s/CPULIMIT/$CPU_LIMIT/g" -e "s/DIFFICULTY/$DIFFICULTY/g" peer-subsection.yml >> $FILENAME
+    sed -e "s/peer-1/peer-$i/g" \
+        -e "s/NODE_ID_SEED=1/NODE_ID_SEED=$i/g" \
+        -e "s/CPULIMIT/$CPU_LIMIT/g" \
+        -e "s/DIFFICULTY/$DIFFICULTY/g" \
+        peer-subsection.yml >> $FILENAME
 done
 
 echo "... done."
