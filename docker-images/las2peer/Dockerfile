@@ -23,7 +23,7 @@ WORKDIR /app/las2peer-registry-contracts
 RUN npm install
 
 WORKDIR /app
-RUN git clone https://github.com/rwth-acis/las2peer.git -b registry-gateway
+RUN git clone https://github.com/rwth-acis/las2peer.git -b develop
 WORKDIR /app/las2peer
 RUN ant build-only-no-bundle
 RUN mkdir -p /app/las2peer/log
