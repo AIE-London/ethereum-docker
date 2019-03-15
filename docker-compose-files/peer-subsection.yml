@@ -3,6 +3,7 @@
         hostname: ethereum-peer-1
         depends_on: ["ethereum-monitor", "ethereum-boot"]
         image: rwthacis/monitored-eth-client
+        cpus: "CPULIMIT"
         environment:
             - "PEER_MINE=1"
             - "ETHEREUM_BOOTSTRAP=ethereum-boot:30303"

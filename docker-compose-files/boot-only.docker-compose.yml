@@ -18,6 +18,7 @@ services:
         container_name: ethereum-boot
         depends_on: ["ethereum-monitor"]
         image: rwthacis/monitored-eth-client
+        cpus: "CPULIMIT"
         environment:
             - "ETHEREUM_MONITOR=ethereum-monitor:3000"
             - "GETH_VERBOSITY=3"
