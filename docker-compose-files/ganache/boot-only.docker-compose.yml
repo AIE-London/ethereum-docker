@@ -7,10 +7,6 @@ services:
         container_name: ganache
         image: trufflesuite/ganache-cli:latest
         command: "--deterministic --verbose --networkId 456719 --account '0x95395d5cd006cf4a95a01f219a66205d4b7d02e54b0da326e9154fa618f083fa,10000000000000000000000000000000000000' --account '0xaae2ed23109633f821c9bd39cfd2d7de2ff6dd49796663a30b3eb5b6880c63db,10000000000000000000000000000000000000' --account '0xe5c65369fb1021efbc6f1317da46407ba87bf510611457e25dde4eca7c8e80d3,10000000000000000000000000000000000000' --account '0x3ad62eea7750b111613227e78620054b85f290f93b8fd6284fef44d974fc5f91,10000000000000000000000000000000000000' --account '0xbc2f0a9bc4628f12aa5a8fc697b2f43ffed83da0496b881fa81d45a86909b1df,10000000000000000000000000000000000000' --account '0x3bbd32652e6e86c6f7c6e4e3bdd950afaa83d274c097c28a509dcd9569051787,10000000000000000000000000000000000000' --account '0xbe1c179fbfd7ad41bcee685d56d13bcc6dd555ac2bb5a97e095adc75b9397441,10000000000000000000000000000000000000' --account '0x8318fa509f77c65fb233d2f143dc7276fe2cf3d8538ad15ed31b14e87b39222c,10000000000000000000000000000000000000' --account '0xf14be57edb9e8ebe272e0f4875ae3737217273657307116a459ccc30abae25b1,10000000000000000000000000000000000000' --account '0xea9350dc7c1a7cff22832576d555590ea32f83e3fcccd2e55b74475075117481,10000000000000000000000000000000000000'"
-        deploy:
-            replicas: 1
-            restart_policy:
-                condition: on-failure
         ports:
             - "8545:8545"
         networks:
@@ -19,11 +15,7 @@ services:
         hostname: las2peer-boot
         container_name: las2peer-boot
         depends_on: ["ganache"]
-        image: tjanson/las2peer:autostart-registry
-        deploy:
-            replicas: 1
-            restart_policy:
-                condition: none # clean recovery not yet implemented
+        image: rwthacis/las2peer
         environment:
             - LAS2PEER_ETH_HOST=ganache
         ports:

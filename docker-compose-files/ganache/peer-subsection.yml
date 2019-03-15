@@ -2,11 +2,7 @@
         container_name: las2peer-peer-1
         hostname: las2peer-peer-1
         depends_on: ["ganache", "las2peer-boot"]
-        image: tjanson/las2peer:autostart-registry
-        deploy:
-            replicas: 1
-            restart_policy:
-                condition: on-failure
+        image: rwthacis/las2peer
         environment:
             - LAS2PEER_CONFIG_ENDPOINT=las2peer-boot:8001
             - LAS2PEER_BOOTSTRAP=las2peer-boot:9000
