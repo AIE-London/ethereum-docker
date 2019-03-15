@@ -1,6 +1,20 @@
 #!/bin/bash
 # note: not sh or zsh compatible
 set -e
+set -o verbose
+
+# when migrating (deploying smart contracts, done by boot node),
+# after eth client is seemingly ready, wait for this many extra seconds
+# (because e.g. account unlocking takes time)
+EXTRA_ETH_WAIT=${EXTRA_ETH_WAIT:-30}
+
+# max wait for bootstrapping node to perform migration and share its config
+# with trivial block time, this takes just a few seconds; with higher block
+# times, this can be e.g. 15 minutes (but possibly much more, depending on
+# difficulty)
+# ... really, at this point we might as well wait forever (until the user
+# kills us), but let's go for a solid six hours
+CONFIG_ENDPOINT_WAIT=${CONFIG_ENDPOINT_WAIT:-21600}
 
 ETH_PROPS_DIR=/app/las2peer/etc/
 ETH_PROPS=i5.las2peer.registry.data.RegistryConfiguration.properties
@@ -14,9 +28,10 @@ function port { echo ${1#*:}; }
 
 if [ -n "$LAS2PEER_CONFIG_ENDPOINT" ]; then
     echo Attempting to autoconfigure registry blockchain parameters ...
-    if waitForEndpoint $(host ${LAS2PEER_CONFIG_ENDPOINT}) $(port ${LAS2PEER_CONFIG_ENDPOINT}) 600; then
+    if waitForEndpoint $(host ${LAS2PEER_CONFIG_ENDPOINT}) $(port ${LAS2PEER_CONFIG_ENDPOINT}) $CONFIG_ENDPOINT_WAIT; then
+        echo "Port is available (but that may just be the Docker daemon)."
         echo Downloading ...
-        wget "http://${LAS2PEER_CONFIG_ENDPOINT}/${ETH_PROPS}" -O "${ETH_PROPS_DIR}${ETH_PROPS}"
+        wget --quiet --tries=inf "http://${LAS2PEER_CONFIG_ENDPOINT}/${ETH_PROPS}" -O "${ETH_PROPS_DIR}${ETH_PROPS}"
         echo done.
     else
         echo Registry configuration endpoint specified but not accessible. Aborting.
@@ -37,6 +52,10 @@ else
     echo Waiting for Ethereum client ...
     if waitForEndpoint ${LAS2PEER_ETH_HOST} 8545 300; then
         echo Starting truffle migration ...
+        echo "just to be sure the Eth client is ready, wait an extra $EXTRA_ETH_WAIT secs ..."
+        echo "    (Yes, this is a potential source of problems, maybe increase.)"
+        sleep $EXTRA_ETH_WAIT
+        echo "wait over, proceeding."
         cd /app/las2peer-registry-contracts
         ./node_modules/.bin/truffle migrate --network docker_boot 2>&1 | tee migration.log
         echo done. Setting contract addresses in config file ...
@@ -76,4 +95,4 @@ function selectMnemonic {
 }
 
 echo Starting las2peer node ...
-java -cp "core/src/main/resources/:core/export/jars/*:restmapper/export/jars/*:webconnector/export/jars/*:core/lib/*:restmapper/lib/*:webconnector/lib/*" i5.las2peer.tools.L2pNodeLauncher --port $LAS2PEER_PORT $([ -n "$LAS2PEER_BOOTSTRAP" ] && echo "--bootstrap $LAS2PEER_BOOTSTRAP") --node-id-seed $RANDOM --ethereum-mnemonic "$(selectMnemonic)"  startWebConnector "node=getNodeAsEthereumNode()" "registry=node.getRegistryClient()" "n=getNodeAsEthereumNode()" "r=n.getRegistryClient()" interactive
+java $(echo $ADDITIONAL_JAVA_ARGS) -cp "core/src/main/resources/:core/export/jars/*:restmapper/export/jars/*:webconnector/export/jars/*:core/lib/*:restmapper/lib/*:webconnector/lib/*" i5.las2peer.tools.L2pNodeLauncher --service-directory service --port $LAS2PEER_PORT $([ -n "$LAS2PEER_BOOTSTRAP" ] && echo "--bootstrap $LAS2PEER_BOOTSTRAP") --node-id-seed $RANDOM --ethereum-mnemonic "$(selectMnemonic)" $(echo $ADDITIONAL_LAUNCHER_ARGS) startWebConnector "node=getNodeAsEthereumNode()" "registry=node.getRegistryClient()" "n=getNodeAsEthereumNode()" "r=n.getRegistryClient()" $(echo $ADDITIONAL_PROMPT_CMDS) interactive
