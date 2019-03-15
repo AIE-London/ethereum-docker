@@ -33,7 +33,5 @@ COPY --chown=build:build ./keystore /app/keystore
 COPY --chown=build:build ./etc /app/las2peer/etc
 COPY --chown=build:build ./start.sh /app/start.sh
 
-COPY --chown=build:build ./services /app/las2peer/service
-
 RUN chmod +x /app/start.sh
 ENTRYPOINT /app/start.sh
