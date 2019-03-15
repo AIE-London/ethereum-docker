@@ -19,7 +19,7 @@
         container_name: las2peer-peer-1
         hostname: las2peer-peer-1
         depends_on: ["ethereum-peer-1", "las2peer-boot"]
-        image: tjanson/las2peer:develop
+        image: rwthacis/las2peer
         environment:
             - "LAS2PEER_CONFIG_ENDPOINT=172.18.0.10:8001"
             - "LAS2PEER_BOOTSTRAP=172.18.0.10:9000"
