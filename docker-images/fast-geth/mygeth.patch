@@ -18,7 +18,7 @@ index 548c57cd9..fd12d5b4a 100644
 -		return calcDifficultyFrontier(time, parent)
 -	}
 +	// NON-STANDARD: PATCHED TO RETURN CONSTANT
-+	return big.NewInt(1)
++	return big.NewInt(400000)
  }
  
  // Some weird constants to avoid constant memory allocs for them.
