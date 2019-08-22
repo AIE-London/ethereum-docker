@@ -1,7 +1,7 @@
 #!/bin/bash
 # note: not sh or zsh compatible
 set -e
-set -o verbose
+#set -o verbose # echo all commands before execution
 
 # when migrating (deploying smart contracts, done by boot node),
 # after eth client is seemingly ready, wait for this many extra seconds
