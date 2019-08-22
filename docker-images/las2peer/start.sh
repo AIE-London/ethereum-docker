@@ -64,6 +64,7 @@ else
         # yeah, this isn't fun:
         cat migration.log | grep -A5 "\(Deploying\|Replacing\|contract address\) \'\(CommunityTagIndex\|UserRegistry\|ServiceRegistry\|ReputationRegistry\)\'" | grep '\(Deploying\|Replacing\|contract address\)' | tr -d " '>:" | sed -e '$!N;s/\n//;s/Deploying//;s/Replacing//;s/contractaddress/Address = /;s/./\l&/' >> "${ETH_PROPS_DIR}${ETH_PROPS}"
         echo done. Serving config files at :8001 ...
+        echo -e "\a" # ding
         cd /app/las2peer/
         pm2 start --silent http-server -- ./etc -p 8001
     else
