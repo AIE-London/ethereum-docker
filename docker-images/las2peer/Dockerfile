@@ -1,3 +1,19 @@
+FROM openjdk:8-jdk-alpine AS buildcache
+RUN apk add --no-cache bash nodejs npm git python build-base htop curl sed apache-ant tar wget vim && npm i -g pm2 http-server
+# https://github.com/mhart/alpine-node/issues/48#issuecomment-370171836
+RUN addgroup -g 1000 -S build && adduser -u 1000 -S build -G build
+RUN mkdir /app-cache && chown build:build /app-cache
+USER build
+WORKDIR /app-cache
+RUN git clone https://github.com/rwth-acis/las2peer-registry-contracts.git -b develop
+WORKDIR /app-cache/las2peer-registry-contracts
+RUN npm install
+WORKDIR /app-cache
+RUN git clone https://github.com/rwth-acis/las2peer.git -b develop
+WORKDIR /app-cache/las2peer
+RUN ant build-only-no-bundle
+
+
 FROM openjdk:8-jdk-alpine
 EXPOSE 9000 8001 8080
 ARG LAS2PEER_PORT=9000
@@ -5,29 +21,44 @@ ENV LAS2PEER_PORT="${LAS2PEER_PORT}"
 ARG LAS2PEER_BOOTSTRAP=""
 ENV LAS2PEER_BOOTSTRAP="${LAS2PEER_BOOTSTRAP}"
 
-RUN apk add --no-cache bash nodejs npm git python build-base htop curl sed apache-ant tar wget vim
-RUN npm i -g pm2 http-server
+RUN apk add --no-cache bash nodejs npm git python build-base htop curl sed apache-ant tar wget vim && npm i -g pm2 http-server
 
 # https://github.com/mhart/alpine-node/issues/48#issuecomment-370171836
-RUN addgroup -g 1000 -S build && \
-    adduser -u 1000 -S build -G build
-
-RUN mkdir /app && chown build:build /app
+RUN addgroup -g 1000 -S build && adduser -u 1000 -S build -G build
+RUN mkdir -p /app && chown build:build /app
 USER build
 
 WORKDIR /app
 RUN git clone https://github.com/ettore26/wait-for-command
 
-RUN git clone https://github.com/rwth-acis/las2peer-registry-contracts.git
+RUN git clone https://github.com/rwth-acis/las2peer-registry-contracts.git -b ma-mslupczynski
 WORKDIR /app/las2peer-registry-contracts
 RUN npm install
 
 WORKDIR /app
-RUN git clone https://github.com/rwth-acis/las2peer.git -b develop
+# cache bust, see https://stackoverflow.com/a/39278224
+# ADD https://api.github.com/repos/rwth-acis/las2peer/git/refs/heads/ma-mslupczynski version.json
+RUN git clone https://github.com/rwth-acis/las2peer.git -b ma-mslupczynski
+
+# use build cache from develop branch
+COPY --from=buildcache /home/build/.ivy2 /home/build/.ivy2
+COPY --from=buildcache /app-cache/las2peer-registry-contracts/node_modules /app/las2peer-registry-contracts/node_modules
+COPY --from=buildcache /app-cache/las2peer/webconnector/frontend/node_modules /app/las2peer/webconnector/frontend/node_modules
+USER root
+RUN chown -R build:build /app
+USER build
+
 WORKDIR /app/las2peer
-RUN ant build-only-no-bundle
+# override local dev
+COPY --chown=build:build ./las2peer/core/src /app/las2peer/core/src
+COPY --chown=build:build ./las2peer/webconnector/src /app/las2peer/webconnector/src
+COPY --chown=build:build ./las2peer/webconnector/frontend/src /app/las2peer/webconnector/frontend/src
+
+# adjust OIDC client ID for local install
+# RUN sed -i "s/bdda7396-3f6d-4d83-ac21-65b4069d0eab/b72b1b86-4bbd-4973-9190-14fd6ef6364c/g" /app/las2peer/webconnector/frontend/src/node-frontend.js
 RUN mkdir -p /app/las2peer/log
 RUN mkdir -p /app/las2peer/node-storage
+RUN ant build-only-no-bundle
 
 COPY --chown=build:build ./keystore /app/keystore
 COPY --chown=build:build ./etc /app/las2peer/etc
