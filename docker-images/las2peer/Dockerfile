@@ -40,10 +40,9 @@ WORKDIR /app
 # cache bust, see https://stackoverflow.com/a/39278224
 # ADD https://api.github.com/repos/rwth-acis/las2peer/git/refs/heads/ma-mslupczynski version.json
 RUN git clone https://github.com/rwth-acis/las2peer.git -b ma-mslupczynski
-
+COPY --from=buildcache /app-cache/las2peer/webconnector/frontend/node_modules /app/las2peer/webconnector/frontend/node_modules
 # use build cache from develop branch
 COPY --from=buildcache /home/build/.ivy2 /home/build/.ivy2
-COPY --from=buildcache /app-cache/las2peer/webconnector/frontend/node_modules /app/las2peer/webconnector/frontend/node_modules
 USER root
 RUN chown -R build:build /app
 USER build
