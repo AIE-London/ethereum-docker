@@ -45,6 +45,7 @@ COPY --from=buildcache /app-cache/las2peer/webconnector/frontend/node_modules /a
 COPY --from=buildcache /home/build/.ivy2 /home/build/.ivy2
 USER root
 RUN chown -R build:build /app
+RUN chown -R build:build /home/build/.ivy2
 USER build
 
 WORKDIR /app/las2peer
