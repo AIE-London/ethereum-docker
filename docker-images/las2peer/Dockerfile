@@ -36,22 +36,18 @@ COPY --from=buildcache --chown=build:build /home/build/.ivy2 /home/build/.ivy2
 
 RUN git clone https://github.com/rwth-acis/las2peer-registry-contracts.git -b ma-mslupczynski
 WORKDIR /app/las2peer-registry-contracts
-COPY --from=buildcache /app-cache/las2peer-registry-contracts/node_modules /app/las2peer-registry-contracts/node_modules
-USER root
-#RUN chown -R build:build /home/build/.ivy2
-RUN chown -R build:build /app/las2peer-registry-contracts/node_modules
-USER build
+COPY --from=buildcache --chown=build:build /app-cache/las2peer-registry-contracts/node_modules /app/las2peer-registry-contracts/node_modules
 RUN npm install
 
 WORKDIR /app
 # cache bust, see https://stackoverflow.com/a/39278224
 ADD https://api.github.com/repos/rwth-acis/las2peer/git/refs/heads/ma-mslupczynski version.json
 RUN git clone https://github.com/rwth-acis/las2peer.git -b ma-mslupczynski
-COPY --from=buildcache /app-cache/las2peer/webconnector/frontend/node_modules /app/las2peer/webconnector/frontend/node_modules
-USER root
-RUN chown -R build:build /app
-RUN chown -R build:build /home/build/.ivy2
-USER build
+COPY --from=buildcache --chown=build:build /app-cache/las2peer/webconnector/frontend/node_modules /app/las2peer/webconnector/frontend/node_modules
+
+#WORKDIR /app/las2peer
+# override local dev
+#COPY --chown=build:build ./las2peer/core/src /app/las2peer/core/src
 
 WORKDIR /app/las2peer
 RUN mkdir -p /app/las2peer/restmapper/tmp
