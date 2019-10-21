@@ -32,13 +32,13 @@ WORKDIR /app
 RUN git clone https://github.com/ettore26/wait-for-command
 
 # use build cache from develop branch
-COPY --from=buildcache build:build /home/build/.ivy2 /home/build/.ivy2
+COPY --from=buildcache --chown=build:build /home/build/.ivy2 /home/build/.ivy2
 
 RUN git clone https://github.com/rwth-acis/las2peer-registry-contracts.git -b ma-mslupczynski
 WORKDIR /app/las2peer-registry-contracts
 COPY --from=buildcache /app-cache/las2peer-registry-contracts/node_modules /app/las2peer-registry-contracts/node_modules
 USER root
-RUN chown -R build:build /home/build/.ivy2
+#RUN chown -R build:build /home/build/.ivy2
 RUN chown -R build:build /app/las2peer-registry-contracts/node_modules
 USER build
 RUN npm install
