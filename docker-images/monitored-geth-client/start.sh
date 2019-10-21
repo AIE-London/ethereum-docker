@@ -19,7 +19,7 @@ if [ -n "$ETHEREUM_MONITOR" ]; then
         perl -pi -e "s/YYYYYY/$ETHEREUM_MONITOR/g" app.json
         /usr/bin/pm2 start --silent ./app.json
     else
-        echo Ethereum network stats monitor specified but unreachable. Ignoring and continuing.
+        echo Ethereum network stats monitor specified at $(host $ETHEREUM_MONITOR):$(port $ETHEREUM_MONITOR) but unreachable. Ignoring and continuing.
     fi
 fi
 

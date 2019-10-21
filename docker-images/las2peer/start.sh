@@ -43,7 +43,7 @@ fi
 
 if [ -n "$LAS2PEER_ETH_HOST" ]; then
     echo Replacing Ethereum client host in config files ...
-    sed -i "s|^endpoint.*$|endpoint = http://${LAS2PEER_ETH_HOST}:8545|" "${ETH_PROPS_DIR}${ETH_PROPS}"
+    sed -i "s|^endpoint.*$|endpoint = http://${LAS2PEER_ETH_HOST}|" "${ETH_PROPS_DIR}${ETH_PROPS}"
     sed -i "s/eth-bootstrap/${LAS2PEER_ETH_HOST}/" /app/las2peer-registry-contracts/truffle.js
     echo done.
 fi
@@ -51,8 +51,8 @@ fi
 if [ -n "$LAS2PEER_BOOTSTRAP" ]; then
     echo Skipping migration, contracts should already be deployed
 else
-    echo Waiting for Ethereum client ...
-    if waitForEndpoint ${LAS2PEER_ETH_HOST} 8545 300; then
+    echo Waiting for Ethereum client at $(host $LAS2PEER_ETH_HOST):$(port $LAS2PEER_ETH_HOST)...
+    if waitForEndpoint $(host $LAS2PEER_ETH_HOST) $(port $LAS2PEER_ETH_HOST) 300; then
         echo Starting truffle migration ...
         echo "just to be sure the Eth client is ready, wait an extra $EXTRA_ETH_WAIT secs ..."
         echo "    (Yes, this is a potential source of problems, maybe increase.)"
