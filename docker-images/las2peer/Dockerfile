@@ -51,7 +51,6 @@ USER build
 WORKDIR /app/las2peer
 RUN mkdir -p /app/las2peer/restmapper/tmp
 RUN mkdir -p /app/las2peer/webconnector/tmp
-RUN ant build-only-no-bundle
 RUN mkdir -p /app/las2peer/log
 RUN mkdir -p /app/las2peer/node-storage
 RUN ant build-only-no-bundle
