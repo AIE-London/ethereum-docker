@@ -31,13 +31,18 @@ USER build
 WORKDIR /app
 RUN git clone https://github.com/ettore26/wait-for-command
 
+# use build cache from develop branch
+COPY --from=buildcache build:build /home/build/.ivy2 /home/build/.ivy2
+
 RUN git clone https://github.com/rwth-acis/las2peer-registry-contracts.git -b ma-mslupczynski
 WORKDIR /app/las2peer-registry-contracts
-COPY --from=buildcache /app-cache/las2peer-registry-contracts/node_modules /app/las2peer-registry-contracts/node_modules
+COPY --from=buildcache --chown=build:build /app-cache/las2peer-registry-contracts/node_modules /app/las2peer-registry-contracts/node_modules
+USER root
+RUN chown -R build:build /home/build/.ivy2
+USER build
+#RUN chown -R build:build /app/las2peer-registry-contracts/node_modules
 RUN npm install
 
-# use build cache from develop branch
-#COPY --from=buildcache /home/build/.ivy2 /home/build/.ivy2
 WORKDIR /app
 # cache bust, see https://stackoverflow.com/a/39278224
 ADD https://api.github.com/repos/rwth-acis/las2peer/git/refs/heads/ma-mslupczynski version.json
@@ -45,7 +50,7 @@ RUN git clone https://github.com/rwth-acis/las2peer.git -b ma-mslupczynski
 COPY --from=buildcache /app-cache/las2peer/webconnector/frontend/node_modules /app/las2peer/webconnector/frontend/node_modules
 USER root
 RUN chown -R build:build /app
-#RUN chown -R build:build /home/build/.ivy2
+RUN chown -R build:build /home/build/.ivy2
 USER build
 
 WORKDIR /app/las2peer
