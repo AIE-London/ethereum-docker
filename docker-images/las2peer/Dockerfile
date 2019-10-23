@@ -1,3 +1,4 @@
+# NODE_MODULES AND IVY BUILD CACHE
 FROM openjdk:8-jdk-alpine AS buildcache
 RUN apk add --no-cache bash nodejs npm git python build-base htop curl sed apache-ant tar wget vim && npm i -g pm2 http-server
 # https://github.com/mhart/alpine-node/issues/48#issuecomment-370171836
@@ -13,7 +14,7 @@ RUN git clone https://github.com/rwth-acis/las2peer.git -b develop
 WORKDIR /app-cache/las2peer
 RUN ant build-only-no-bundle
 
-
+# LAS2PEER BOOTSTRAP
 FROM openjdk:8-jdk-alpine
 EXPOSE 9000 8001 8080
 ARG LAS2PEER_PORT=9000
