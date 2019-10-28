@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: las2peer-userinformation-service
+  labels:
+    app: las2peer-userinformation-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: las2peer-userinformation-service
+  template:
+    metadata:
+      labels:
+        app: las2peer-userinformation-service
+    spec:
+      # Force to run on master node as the domain resolves to its IP
+      tolerations:
+      - key: "node-role.kubernetes.io"
+        operator: "Equal"
+        value: "master"
+        effect: "NoSchedule"
+      nodeSelector:
+        kubernetes.io/role: master
+      containers:
+      - name: las2peer-userinformation-service
+        env:
+        - name: LAS2PEER_PORT
+          value: "32092"
+        - name: BOOTSTRAP
+          value: "tech4comp.dbis.rwth-aachen.de:32320" #todo change to mobsos port (kubectl get all mobsos ip addresse)
+        image: rwthacis/las2peer-userinformation-service
+        imagePullPolicy: IfNotPresent
+        volumeMounts:
+        - name: pastry-config-volume
+          mountPath: /src/etc/pastry.properties
+          subPath: pastry-las2peer-userinformation-service.properties
+      volumes:
+      - name: pastry-config-volume
+        configMap:
+          name: pastry-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: las2peer-userinformation-service
+spec:
+  selector:
+    app: las2peer-userinformation-service
+  ports:
+  - port: 32092
+    nodePort: 32092
+    name: las2peer
+    protocol: TCP
+  - port: 32092
+    nodePort: 32092
+    name: las2peer-pastry
+    protocol: UDP
+  type: NodePort

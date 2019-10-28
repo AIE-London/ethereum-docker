@@ -1,0 +1,259 @@
+# =============================================================
+# DEPLOYMENT CONFIGURATION:
+# 
+#   DESCRIPTION OF PODS 
+#     docker images
+#     environment variables
+#   
+#
+# =============================================================
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: las2peer-ethnet
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: las2peer-ethnet
+  template:
+    metadata:
+      labels:
+        io.kompose.service: las2peer-ethnet
+    creationTimestamp: null
+    spec:
+      tolerations:
+      - key: "node-role.kubernetes.io"
+        operator: "Equal"
+        value: "master"
+        effect: "NoSchedule"
+      containers:
+      - name: ethereum
+        args: ["--datadir ~/.ethereum/devchain --nodekeyhex 091bd6067cb4612df85d9c1ff85cc47f259ced4d4cd99816b14f35650f59c322 --networkid 456719 --rpc --rpcaddr 0.0.0.0 --rpcapi db,personal,eth,net,web3,miner --rpccorsdomain=* --ws --wsaddr 0.0.0.0 --wsapi db,personal,eth,net,web3,miner --wsorigins=* --mine --minerthreads 1 --unlock 0,1 --password /dev/null --ethereum-mnemonic \"old puzzle vacant sing prison garment grief giraffe trap wire wrist kite begin crater dignity\""]
+        command: ["/root/start.sh"]
+        image: rwthacis/monitored-geth-client
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: ETHEREUM_MONITOR
+          value: las2peer-ethnet:3000
+        - name: GETH_VERBOSITY
+          value: "3"
+        ports:
+        - containerPort: 30303
+        - containerPort: 30303
+          protocol: UDP
+        - containerPort: 8545
+        - containerPort: 8546
+        resources:
+          requests:
+            cpu: "100m"
+      - name: netstats
+        image: mslupczynski/eth-netstats:ma-mslupczynski
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: WS_SECRET
+          value: eth-net-stats-secret
+        ports:
+          - containerPort: 3000
+      volumes:
+      - name: node-storage
+        emptyDir: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: las2peer-bootstrap
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: las2peer-bootstrap
+  template:
+    metadata:
+      labels:
+        io.kompose.service: las2peer-bootstrap
+    creationTimestamp: null
+    spec:
+      tolerations:
+      - key: "node-role.kubernetes.io"
+        operator: "Equal"
+        value: "master"
+        effect: "NoSchedule"
+      containers:
+      - name: las2peer
+        image: mslupczynski/las2peer:ma-mslupczynski
+        imagePullPolicy: Always 
+        ports:
+        - containerPort: 9000
+        - containerPort: 8080
+        volumeMounts:
+        - name: node-storage
+          mountPath: /app/las2peer/node-storage
+        env:
+        - name: LAS2PEER_ETH_HOST
+          value: las2peer-ethnet:8545
+        - name: NODE_ID_SEED
+          value: "1"
+      volumes:
+      - name: node-storage
+        emptyDir: {}
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: las2peer-eth-explorer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: las2peer-eth-explorer
+  template:
+    metadata:
+      labels:
+        io.kompose.service: las2peer-eth-explorer
+    creationTimestamp: null
+    spec:
+      tolerations:
+      - key: "node-role.kubernetes.io"
+        operator: "Equal"
+        value: "master"
+        effect: "NoSchedule"
+      containers:
+      - name: eth-explorer
+        image: carechain/eth-explorer
+        imagePullPolicy: IfNotPresent
+        ports:
+          - containerPort: 8000
+        env:
+        - name: GETH_HOSTNAME
+          value: tech4comp.dbis.rwth-aachen.de
+        - name: GETH_RPCPORT
+          value: "31286"
+        - name: GETH_RPCCORS
+---
+# =============================================================
+# CLUSTER IP CONFIGURATION:
+# 
+#   MAPPING between 
+#      POD ports
+#             AND
+#      SERVICE ports
+#
+# =============================================================
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    io.kompose.service: las2peer-bootstrap
+  name: las2peer-bootstrap
+spec:
+  ports:
+  - name: "las2peer"
+    port: 9000
+  - name: "las2peer-wc"
+    port: 8080
+  selector:
+    io.kompose.service: las2peer-bootstrap
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    io.kompose.service: las2peer-ethnet
+  name: las2peer-ethnet
+spec:
+  ports:
+  - name: "ethererum"
+    port: 30303
+  - name: "ethereum-udp"
+    port: 30303
+    protocol: UDP  
+  - name: "http-rpc-api"
+    port: 8545
+  - name: "ws-rpc-api"
+    port: 8546
+  - name: "netstats-ui"
+    port: 3000
+  selector:
+    io.kompose.service: las2peer-ethnet
+  type: ClusterIP
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    io.kompose.service: las2peer-eth-explorer
+  name: las2peer-eth-explorer
+spec:
+  ports:
+  - name: "eth-explorer"
+    port: 8000
+  selector:
+    io.kompose.service: las2peer-eth-explorer
+  type: ClusterIP
+---
+# =============================================================
+# NODEPORT CONFIGURATION:
+# 
+#   MAPPING between 
+#      SERVICE ports
+#             AND
+#      CLUSTER ports
+#
+# =============================================================
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    io.kompose.service: las2peer-eth-explorer-ports
+  name: las2peer-eth-explorer-ports
+spec:
+  ports:
+  - name: "eth-explorer-ui"
+    port: 8000
+    nodePort: 31288
+  selector:
+    io.kompose.service: las2peer-eth-explorer
+  type: NodePort
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    io.kompose.service: las2peer-p2p-ports
+  name: las2peer-p2p-ports
+spec:
+  ports:
+  - name: "las2peer-external-webconnector"
+    port: 8080
+    nodePort: 32319
+  - name: "las2peer-external"
+    port: 9000
+    nodePort: 32320
+    protocol: TCP
+  - name: "las2peer-ext-pastry-udp"
+    port: 9000
+    nodePort: 32320
+    protocol: UDP
+  selector:
+    io.kompose.service: las2peer-bootstrap
+  type: NodePort
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    io.kompose.service: las2peer-eth-netstats-ports
+  name: las2peer-eth-netstats-ports
+spec:
+  ports:
+  - name: "netstats-ui"
+    port: 3000
+    nodePort: 31285
+  - name: "eth-http-rpc-api"
+    port: 8545
+    nodePort: 31286
+  selector:
+    io.kompose.service: las2peer-ethnet
+  type: NodePort
