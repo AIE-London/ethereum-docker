@@ -1,11 +1,27 @@
 # =============================================================
+# PERSISTENT VOLUMES:
+# 
+#   NODE STORAGE OF LAS2PEER
+#   
+# =============================================================
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: las2peer-nodestorage-pv-claim
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 2Gi
+---
+# =============================================================
 # DEPLOYMENT CONFIGURATION:
 # 
 #   DESCRIPTION OF PODS 
 #     docker images
 #     environment variables
 #   
-#
 # =============================================================
 apiVersion: apps/v1
 kind: Deployment
@@ -55,9 +71,13 @@ spec:
           value: eth-net-stats-secret
         ports:
           - containerPort: 3000
+        volumeMounts:
+        - name: las2peer-nodestorage-persistent
+          mountPath: /app/las2peer/node-storage
       volumes:
-      - name: node-storage
-        emptyDir: {}
+      - name: las2peer-nodestorage-persistent
+        persistentVolumeClaim:
+          claimName: las2peer-nodestorage-pv-claim
 ---
 apiVersion: apps/v1
 kind: Deployment
