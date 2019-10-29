@@ -71,13 +71,6 @@ spec:
           value: eth-net-stats-secret
         ports:
           - containerPort: 3000
-        volumeMounts:
-        - name: las2peer-nodestorage-persistent
-          mountPath: /app/las2peer/node-storage
-      volumes:
-      - name: las2peer-nodestorage-persistent
-        persistentVolumeClaim:
-          claimName: las2peer-nodestorage-pv-claim
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -106,17 +99,18 @@ spec:
         ports:
         - containerPort: 9000
         - containerPort: 8080
-        volumeMounts:
-        - name: node-storage
-          mountPath: /app/las2peer/node-storage
         env:
         - name: LAS2PEER_ETH_HOST
           value: las2peer-ethnet:8545
         - name: NODE_ID_SEED
           value: "1"
+        volumeMounts:
+          - name: las2peer-nodestorage-persistent
+            mountPath: /app/las2peer/node-storage
       volumes:
-      - name: node-storage
-        emptyDir: {}
+      - name: las2peer-nodestorage-persistent
+        persistentVolumeClaim:
+          claimName: las2peer-nodestorage-pv-claim
 ---
 apiVersion: apps/v1
 kind: Deployment
