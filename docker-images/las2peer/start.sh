@@ -27,6 +27,20 @@ function waitForEndpoint {
 
 function host { echo ${1%%:*}; }
 function port { echo ${1#*:}; }
+function truffleMigrate { 
+    echo Starting truffle migration ...
+    echo "just to be sure the Eth client is ready, wait an extra $EXTRA_ETH_WAIT secs ..."
+    echo "    (Yes, this is a potential source of problems, maybe increase.)"
+    sleep $EXTRA_ETH_WAIT
+    echo "wait over, proceeding."
+    cd /app/las2peer-registry-contracts
+    ./node_modules/.bin/truffle migrate --network docker_boot 2>&1 | tee migration.log
+    echo done. Setting contract addresses in config file ...
+    # yeah, this isn't fun:
+    cat migration.log | grep -A5 "\(Deploying\|Replacing\|contract address\) \'\(CommunityTagIndex\|UserRegistry\|ServiceRegistry\|ReputationRegistry\)\'" | grep '\(Deploying\|Replacing\|contract address\)' | tr -d " '>:" | sed -e '$!N;s/\n//;s/Deploying//;s/Replacing//;s/contractaddress/Address = /;s/./\l&/' >> "${ETH_PROPS_DIR}${ETH_PROPS}"
+    cp migration.log /app/las2peer/node-storage/migration.log
+    echo done. 
+ }
 
 if [ -n "$LAS2PEER_CONFIG_ENDPOINT" ]; then
     echo Attempting to autoconfigure registry blockchain parameters ...
@@ -43,8 +57,9 @@ fi
 
 if [ -n "$LAS2PEER_ETH_HOST" ]; then
     echo Replacing Ethereum client host in config files ...
+    ETH_HOST_SUB=$(host $LAS2PEER_ETH_HOST)
     sed -i "s|^endpoint.*$|endpoint = http://${LAS2PEER_ETH_HOST}|" "${ETH_PROPS_DIR}${ETH_PROPS}"
-    sed -i "s/eth-bootstrap/$(host LAS2PEER_ETH_HOST)/" /app/las2peer-registry-contracts/truffle.js
+    sed -i "s/eth-bootstrap/${ETH_HOST_SUB}/" /app/las2peer-registry-contracts/truffle.js
     echo done.
 fi
 
@@ -55,22 +70,20 @@ else
     if waitForEndpoint $(host $LAS2PEER_ETH_HOST) $(port $LAS2PEER_ETH_HOST) 300; then
         echo Found Eth client. 
         if [ -s "/app/las2peer/node-storage/migration.log" ]; then
-            echo Found old migration.log, importing
+            echo Found old migration.log, importing...
+            cat /app/las2peer/node-storage/migration.log
+
             cat /app/las2peer/node-storage/migration.log | grep -A5 "\(Deploying\|Replacing\|contract address\) \'\(CommunityTagIndex\|UserRegistry\|ServiceRegistry\|ReputationRegistry\)\'" | grep '\(Deploying\|Replacing\|contract address\)' | tr -d " '>:" | sed -e '$!N;s/\n//;s/Deploying//;s/Replacing//;s/contractaddress/Address = /;s/./\l&/' >> "${ETH_PROPS_DIR}${ETH_PROPS}"
+            if ![grep -E "reputationRegistryAddress\|userRegistryAddress\|serviceRegistryAddress" -q "${ETH_PROPS_DIR}${ETH_PROPS}"]; then
+                echo \[!\] import of old migration failed, missing contract address in logfile.
+                echo Running truffle migration
+                truffleMigrate
+            fi
+
+
             echo done.
         else
-            echo Starting truffle migration ...
-            echo "just to be sure the Eth client is ready, wait an extra $EXTRA_ETH_WAIT secs ..."
-            echo "    (Yes, this is a potential source of problems, maybe increase.)"
-            sleep $EXTRA_ETH_WAIT
-            echo "wait over, proceeding."
-            cd /app/las2peer-registry-contracts
-            ./node_modules/.bin/truffle migrate --network docker_boot 2>&1 | tee migration.log
-            echo done. Setting contract addresses in config file ...
-            # yeah, this isn't fun:
-            cat migration.log | grep -A5 "\(Deploying\|Replacing\|contract address\) \'\(CommunityTagIndex\|UserRegistry\|ServiceRegistry\|ReputationRegistry\)\'" | grep '\(Deploying\|Replacing\|contract address\)' | tr -d " '>:" | sed -e '$!N;s/\n//;s/Deploying//;s/Replacing//;s/contractaddress/Address = /;s/./\l&/' >> "${ETH_PROPS_DIR}${ETH_PROPS}"
-            cp migration.log /app/las2peer/node-storage/migration.log
-            echo done. 
+            truffleMigrate
         fi
         echo Serving config files at :8001 ...
         echo -e "\a" # ding
