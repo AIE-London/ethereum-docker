@@ -35,6 +35,8 @@ RUN git clone https://github.com/ettore26/wait-for-command
 # use build cache from develop branch
 COPY --from=buildcache --chown=build:build /home/build/.ivy2 /home/build/.ivy2
 
+# cache bust, see https://stackoverflow.com/a/39278224
+ADD https://api.github.com/repos/rwth-acis/las2peer-registry-contracts/git/refs/heads/ma-mslupczynski version.json
 RUN git clone https://github.com/rwth-acis/las2peer-registry-contracts.git -b ma-mslupczynski
 WORKDIR /app/las2peer-registry-contracts
 COPY --from=buildcache --chown=build:build /app-cache/las2peer-registry-contracts/node_modules /app/las2peer-registry-contracts/node_modules
@@ -46,20 +48,14 @@ ADD https://api.github.com/repos/rwth-acis/las2peer/git/refs/heads/ma-mslupczyns
 RUN git clone https://github.com/rwth-acis/las2peer.git -b ma-mslupczynski
 COPY --from=buildcache --chown=build:build /app-cache/las2peer/webconnector/frontend/node_modules /app/las2peer/webconnector/frontend/node_modules
 
-#WORKDIR /app/las2peer
-# override local dev
-#COPY --chown=build:build ./las2peer/core/src /app/las2peer/core/src
-
 WORKDIR /app/las2peer
-RUN mkdir -p /app/las2peer/restmapper/tmp
-RUN mkdir -p /app/las2peer/webconnector/tmp
-RUN mkdir -p /app/las2peer/log
-RUN mkdir -p /app/las2peer/node-storage
+RUN mkdir -p /app/las2peer/restmapper/tmp && mkdir -p /app/las2peer/webconnector/tmp && mkdir -p /app/las2peer/log && mkdir -p /app/las2peer/node-storage
 RUN ant build-only-no-bundle
 
-COPY --chown=build:build ./keystore /app/keystore
+WORKDIR /app
 COPY --chown=build:build ./etc /app/las2peer/etc
+COPY --chown=build:build ./keystore /app/keystore
 COPY --chown=build:build ./start.sh /app/start.sh
-
 RUN chmod +x /app/start.sh
+
 ENTRYPOINT /app/start.sh
