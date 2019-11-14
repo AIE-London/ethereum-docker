@@ -74,7 +74,7 @@ else
             cat /app/las2peer/node-storage/migration.log
 
             cat /app/las2peer/node-storage/migration.log | grep -A5 "\(Deploying\|Replacing\|contract address\) \'\(CommunityTagIndex\|UserRegistry\|ServiceRegistry\|ReputationRegistry\)\'" | grep '\(Deploying\|Replacing\|contract address\)' | tr -d " '>:" | sed -e '$!N;s/\n//;s/Deploying//;s/Replacing//;s/contractaddress/Address = /;s/./\l&/' >> "${ETH_PROPS_DIR}${ETH_PROPS}"
-            if ![grep -E "reputationRegistryAddress\|userRegistryAddress\|serviceRegistryAddress" -q "${ETH_PROPS_DIR}${ETH_PROPS}"]; then
+            if [ -n grep -E "reputationRegistryAddress\|userRegistryAddress\|serviceRegistryAddress" -q "${ETH_PROPS_DIR}${ETH_PROPS}" ]; then
                 echo \[!\] import of old migration failed, missing contract address in logfile.
                 echo Running truffle migration
                 truffleMigrate
