@@ -1,0 +1,6 @@
+<las2peerNode>
+	<adminName>tester</adminName>
+	<adminEmail>test@test.com</adminEmail>
+	<organization>Advanced Community Information Systems (ACIS) Group, RWTH Aachen University</organization>
+	<description>This node hosts the las2peer node with ethereum integration.</description>
+</las2peerNode>
