@@ -1,0 +1,188 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mysql-initdb-config
+data:
+  initdb.sql: |-
+    DROP DATABASE IF EXISTS `LAS2PEERMON`;
+    CREATE DATABASE `LAS2PEERMON` /*!40100 DEFAULT CHARACTER SET utf8 */;
+    USE `LAS2PEERMON`;    
+
+    DROP TABLE IF EXISTS MESSAGE, AGENT, REGISTERED_AT, NODE, SERVICE;
+    CREATE TABLE MESSAGE (
+      ID INT NOT NULL auto_increment,
+      EVENT VARCHAR(255) NOT NULL,
+      TIME_STAMP BIGINT NOT NULL,
+      SOURCE_NODE VARCHAR(255),
+      SOURCE_AGENT CHAR(32),
+      DESTINATION_NODE VARCHAR(255),
+      DESTINATION_AGENT CHAR(32),
+      REMARKS json DEFAULT NULL,
+      CONSTRAINT MESSAGE_PK PRIMARY KEY (ID)
+    );
+    CREATE TABLE AGENT (
+      AGENT_ID CHAR(32) NOT NULL,
+      TYPE ENUM("USER", "SERVICE", "GROUP", "MONITORING", "MEDIATOR"),
+      CONSTRAINT AGENT_PK PRIMARY KEY (AGENT_ID)
+    );
+    CREATE TABLE NODE (
+      NODE_ID VARCHAR(255) NOT NULL,
+      NODE_LOCATION VARCHAR(255) NOT NULL,
+      CONSTRAINT NODE_PK PRIMARY KEY (NODE_ID)
+    );
+    CREATE TABLE REGISTERED_AT (
+      REGISTRATION_DATE TIMESTAMP NULL,
+      UNREGISTRATION_DATE TIMESTAMP NULL,
+      AGENT_ID CHAR(32) NOT NULL,
+      RUNNING_AT VARCHAR(255),
+      CONSTRAINT AGENT_ID_FK FOREIGN KEY (AGENT_ID) REFERENCES AGENT(AGENT_ID),
+      CONSTRAINT RUNNING_AT_FK FOREIGN KEY (RUNNING_AT) REFERENCES NODE(NODE_ID)
+    );
+    CREATE TABLE SERVICE (
+      AGENT_ID CHAR(32) NOT NULL,
+      SERVICE_CLASS_NAME VARCHAR(255),
+      SERVICE_PATH VARCHAR(255) NULL,
+      CONSTRAINT SERVICE_PK PRIMARY KEY (AGENT_ID),
+      CONSTRAINT SERVICE_FK FOREIGN KEY (AGENT_ID) REFERENCES AGENT(AGENT_ID),
+      CONSTRAINT SERVICE_UK UNIQUE KEY (AGENT_ID,SERVICE_CLASS_NAME)
+    );
+    CREATE TABLE GROUP_INFORMATION
+    (
+        GROUP_AGENT_ID_MD5 CHAR(32) NOT NULL,
+        GROUP_AGENT_ID CHAR(128) NOT NULL,
+        GROUP_NAME VARCHAR(255) NOT NULL,
+        PUBLIC BOOLEAN,
+        CONSTRAINT GROUP_AGENT_ID_FK FOREIGN KEY (GROUP_AGENT_ID_MD5) REFERENCES AGENT(AGENT_ID)
+    );
+
+    DROP DATABASE IF EXISTS `QVS`;
+    CREATE DATABASE `QVS` /*!40100 DEFAULT CHARACTER SET utf8 */;
+    USE `QVS`;
+
+    DROP TABLE IF EXISTS `DATABASE_CONNECTIONS`;
+    CREATE TABLE `DATABASE_CONNECTIONS` (
+      `JDBCINFO` int(11) NOT NULL,
+      `KEY` varchar(255) NOT NULL,
+      `USERNAME` varchar(255) NOT NULL,
+      `PASSWORD` varchar(255) NOT NULL,
+      `DATABASE` varchar(255) NOT NULL,
+      `HOST` varchar(255) NOT NULL,
+      `PORT` varchar(5) NOT NULL,
+      `USER` varchar(128) NOT NULL,
+      PRIMARY KEY (`KEY`,`USER`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+    DROP TABLE IF EXISTS `FILTERS`;
+    CREATE TABLE `FILTERS` (
+      `KEY` varchar(45) NOT NULL,
+      `QUERY` text NOT NULL,
+      `USER` varchar(128) NOT NULL,
+      `DB_KEY` varchar(45) NOT NULL,
+      PRIMARY KEY (`KEY`,`USER`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+    DROP TABLE IF EXISTS `QUERIES`;
+    CREATE TABLE `QUERIES` (
+      `KEY` varchar(45) NOT NULL,
+      `USER` varchar(128) NOT NULL,
+      `USERNAME` varchar(255) NOT NULL,
+      `PASSWORD` varchar(255) NOT NULL,
+      `JDBCINFO` int(11) NOT NULL,
+      `DATABASE_KEY` varchar(255) NOT NULL,
+      `DATABASE_NAME` varchar(255) NOT NULL,
+      `HOST` varchar(255) NOT NULL,
+      `PORT` int(11) NOT NULL,
+      `USE_CACHE` varchar(1) DEFAULT '0',
+      `QUERY_STATEMENT` text NOT NULL,
+      `FILTER_DEFAULTS` text NOT NULL,
+      `MODIFICATION_TYPE` int(11) NOT NULL,
+      `VISUALIZATION_TYPE` varchar(30) NOT NULL,
+      `VISUALIZATION_TITLE` varchar(255) DEFAULT NULL,
+      `VISUALIZATION_HEIGHT` int(11) DEFAULT NULL,
+      `VISUALIZATION_WIDTH` int(11) DEFAULT NULL,
+      PRIMARY KEY (`KEY`,`USER`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+    DROP TABLE IF EXISTS `USERS`;
+    CREATE TABLE `USERS` (
+      `ID` varchar(128) NOT NULL,
+      PRIMARY KEY (`ID`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+    INSERT INTO `USERS`(`ID`) VALUES ("anonymous");
+    INSERT INTO `DATABASE_CONNECTIONS` (
+        `JDBCINFO`, `KEY`, `USERNAME`, `PASSWORD`, `DATABASE`, `HOST`, `PORT`, `USER`
+      ) VALUES (
+        2, "__mobsos", "root", "mobsos", "OVS", "localhost", "3306", "anonymous"
+      );
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pastry-config
+data:
+  pastry-mobsos-data-processing.properties: |
+    external_address = tech4comp.dbis.rwth-aachen.de:31500
+  pastry-las2peer-userinformation-service.properties: |
+    external_address = tech4comp.dbis.rwth-aachen.de:31504
+  pastry-las2peer-file-service.properties: |
+    external_address = tech4comp.dbis.rwth-aachen.de:31505
+  pastry-las2peer-contact-service.properties: |
+    external_address = tech4comp.dbis.rwth-aachen.de:31506 
+  pastry-mobsos-surveys.properties: |
+    external_address = tech4comp.dbis.rwth-aachen.de:31507
+  pastry-mobsos-success-modeling.properties: |
+    external_address = tech4comp.dbis.rwth-aachen.de:31508
+  pastry-mobsos-query-visualization.properties: |
+    external_address = tech4comp.dbis.rwth-aachen.de:31510
+  pastry-mobsos-evaluation-center.properties: |
+    external_address = tech4comp.dbis.rwth-aachen.de:31509
+  pastry-las2peer.properties: |
+    external_address = tech4comp.dbis.rwth-aachen.de:32320
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: registry-config
+data:
+  registry-config.properties: |-
+    endpoint = http://las2peer-ethnet:8545
+    gasPrice = 20000000000
+    gasLimit = 6721975
+    communityTagIndexAddress = 0xeB510FB89C25cc1Af61fE45B965b5Fe27F1BCBa0
+    userRegistryAddress = 0x0e8acA05A8B35516504690Fa97fAEa69bbAFf901
+    reputationRegistryAddress = 0xd35284B7644732094338559c13a5CE880D247D37
+    serviceRegistryAddress = 0x4930DC85997124F6cFBe8fAE727EA69E9577BBBc
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mobsos-qvs-webconnector-config
+data:
+  webconnector-config.properties: |-
+    httpPort = 8080
+    httpsPort = 8090
+    startHttp = TRUE
+    startHttps = FALSE
+    sslKeystore = etc/example.jks
+    sslKeyPassword = secretpassword
+    crossOriginResourceDomain = *
+    crossOriginResourceMaxAge = 60
+    enableCrossOriginResourceSharing = TRUE
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: qvs-config
+data:
+  qvs-config.properties: |-
+    stDbKey = storage
+    stDbHost = localhost
+    stDbPort = 3306
+    stDbDatabase = QVS
+    stDbUser = root
+    stDbPassword = 
+    exKey = example
+    exHost = localhost
+    exPort = 3306
+    exDatabase = classicmodels
+    exUser = root
+    exPassword =
+    exType = MySQL

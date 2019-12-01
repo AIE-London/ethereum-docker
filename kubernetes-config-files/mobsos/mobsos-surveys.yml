@@ -1,0 +1,89 @@
+apiVersion: apps/v1
+kind: Deployment 
+metadata:
+  name: mobsos-surveys
+  labels:
+    app: mobsos-surveys
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mobsos-surveys
+  template:
+    metadata:
+      labels:
+        app: mobsos-surveys
+    spec:
+      tolerations:
+      - key: "node-role.kubernetes.io"
+        operator: "Equal"
+        value: "master"
+        effect: "NoSchedule"
+      nodeSelector:
+        kubernetes.io/role: master
+      containers:
+      - name: mobsos-surveys
+        image: rwthacis/mobsos-surveys:develop
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: BOOTSTRAP
+          value: "tech4comp.dbis.rwth-aachen.de:32320"
+        - name: LAS2PEER_ETH_HOST
+          value: las2peer-ethnet:8545
+        - name: LAS2PEER_PORT
+          value: "31507"
+        - name: MYSQL_PASSWORD
+          value: mobsos
+        - name: MYSQL_USER
+          value: root
+        - name: MYSQL_HOST
+          value: "mobsos-surveys"
+        - name: OIDC_CLIENT_ID
+          value: "2fbca3ef-babc-431b-ac61-f99967228552"
+        - name: SERVICE_EXTRA_ARGS
+          value: "--observer"
+        volumeMounts:
+        - name: pastry-config-volume
+          mountPath: /src/etc/pastry.properties
+          subPath: pastry-mobsos-surveys.properties
+        - name: registry-config-volume
+          mountPath: /src/etc/i5.las2peer.registry.data.RegistryConfiguration.properties
+          subPath: registry-config.properties
+      - name: mobsos-surveys-mysql
+        image: mysql:5.7
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: MYSQL_DATABASE
+          value: mobsos
+        - name: MYSQL_ROOT_PASSWORD
+          value: mobsos
+        ports:
+          - containerPort: 3306
+      volumes:
+      - name: pastry-config-volume
+        configMap:
+          name: pastry-config
+      - name: registry-config-volume
+        configMap:
+          name: registry-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mobsos-surveys
+spec:
+  selector:
+    app: mobsos-surveys 
+  ports:
+  - port: 3306
+    nodePort: 32306
+    name: mysql
+  - port: 31507
+    nodePort: 31507
+    name: surveys
+    protocol: TCP
+  - port: 31507
+    nodePort: 31507
+    name: surveys-pastry
+    protocol: UDP
+  type: NodePort

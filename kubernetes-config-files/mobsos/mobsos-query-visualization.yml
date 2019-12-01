@@ -1,0 +1,101 @@
+apiVersion: apps/v1
+kind: Deployment 
+metadata:
+  name: mobsos-query-visualization
+  labels:
+    app: mobsos-query-visualization
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mobsos-query-visualization
+  template:
+    metadata:
+      labels:
+        app: mobsos-query-visualization
+    spec:
+      tolerations:
+      - key: "node-role.kubernetes.io"
+        operator: "Equal"
+        value: "master"
+        effect: "NoSchedule"
+      nodeSelector:
+        kubernetes.io/role: master
+      containers:
+      - name: mobsos-query-visualization
+        image: rwthacis/mobsos-query-visualization:development
+        imagePullPolicy: Always
+        env: 
+        - name: BOOTSTRAP
+          value: "tech4comp.dbis.rwth-aachen.de:32320"
+        - name: LAS2PEER_ETH_HOST
+          value: las2peer-ethnet:8545
+        - name: LAS2PEER_PORT
+          value: "31510"
+        - name: MYSQL_PASSWORD
+          value: mobsos
+        - name: MYSQL_USER
+          value: root
+        - name: SERVICE_EXTRA_ARGS
+          value: "--observer"
+        - name: MYSQL_HOST
+          value: "mobsos-query-visualization"
+        - name: USE_FILE_SERVICE
+          value: "TRUE"
+        volumeMounts:
+        - name: pastry-config-volume
+          mountPath: /src/etc/pastry.properties
+          subPath: pastry-mobsos-query-visualization.properties
+        - name: registry-config-volume
+          mountPath: /src/etc/i5.las2peer.registry.data.RegistryConfiguration.properties
+          subPath: registry-config.properties
+      - name: mobsos-query-visualization-mysql
+        image: mysql:5.7
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: MYSQL_DATABASE
+          value: QVS
+        - name: MYSQL_ROOT_PASSWORD
+          value: mobsos
+        ports:
+          - containerPort: 3306
+        volumeMounts:
+        - name: mysql-initdb
+          mountPath: /docker-entrypoint-initdb.d
+      volumes:
+      - name: pastry-config-volume
+        configMap:
+          name: pastry-config
+      - name: registry-config-volume
+        configMap:
+          name: registry-config
+      - name: mysql-initdb
+        configMap:
+          name: mysql-initdb-config
+      - name: qvs-config-volume
+        configMap:
+          name: qvs-config
+      - name: mobsos-qvs-webconnector-config-volume
+        configMap:
+          name: mobsos-qvs-webconnector-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mobsos-query-visualization
+spec:
+  selector:
+    app: mobsos-query-visualization 
+  ports:
+  - port: 3306
+    nodePort: 32405
+    name: mysql
+  - port: 31510
+    nodePort: 31510
+    name: query-visualization
+    protocol: TCP
+  - port: 31510
+    nodePort: 31510
+    name: query-visualization-pastry
+    protocol: UDP
+  type: NodePort

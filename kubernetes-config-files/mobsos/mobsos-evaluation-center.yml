@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: Deployment 
+metadata:
+  name: mobsos-eval-center
+  labels:
+    app: mobsos-eval-center
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mobsos-eval-center
+  template:
+    metadata:
+      labels:
+        app: mobsos-eval-center
+    spec:
+      tolerations:
+      - key: "node-role.kubernetes.io"
+        operator: "Equal"
+        value: "master"
+        effect: "NoSchedule"
+      nodeSelector:
+        kubernetes.io/role: master
+      containers:
+      - name: mobsos-evaluation-center
+        image: mslupczynski/mobsos-evaluation-center
+        imagePullPolicy: Always
+        env:
+        - name: LAS2PEER_PORT
+          value: "31509"
+        - name: BOOTSTRAP
+          value: "http://tech4comp.dbis.rwth-aachen.de:32319"
+        - name: Y_WEBSOCKET
+          # value: "l2p-yjs-websockets-server-2.herokuapp.com:1234"
+          # value: "cloud10.dbis.rwth-aachen.de:8083"
+          value: "cloud10.dbis.rwth-aachen.de:8089"
+        - name: OIDC_CLIENT_ID
+          value: "bdda7396-3f6d-4d83-ac21-65b4069d0eab"
+        volumeMounts:
+        - name: pastry-config-volume
+          mountPath: /src/etc/pastry.properties
+          subPath: pastry-mobsos-evaluation-center.properties
+        - name: las2peer-nodestorage-persistent
+          mountPath: /app/las2peer/node-storage
+      - name: y-websocket-server
+        image: rwthacis/y-websockets-server
+        imagePullPolicy: IfNotPresent
+        ports:
+        - containerPort: 1234
+        env:
+        - name: DEBUG
+          value: "y*,-y:connector-message y-websockets-server --port 1234"
+      volumes:
+      - name: pastry-config-volume
+        configMap:
+          name: pastry-config
+      - name: las2peer-nodestorage-persistent
+        persistentVolumeClaim:
+          claimName: las2peer-nodestorage-pv-claim
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mobsos-eval-center
+spec:
+  selector:
+    app: mobsos-eval-center 
+  ports:
+  - port: 1234
+    nodePort: 31501
+    name: y-websocket
+  - port: 4200
+    nodePort: 31509
+    name: mobsos-eval-center
+  type: NodePort

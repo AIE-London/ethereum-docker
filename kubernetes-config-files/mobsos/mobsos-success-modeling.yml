@@ -1,0 +1,100 @@
+apiVersion: apps/v1
+kind: Deployment 
+metadata:
+  name: mobsos-success-modeling
+  labels:
+    app: mobsos-success-modeling
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mobsos-success-modeling
+  template:
+    metadata:
+      labels:
+        app: mobsos-success-modeling
+    spec:
+      tolerations:
+      - key: "node-role.kubernetes.io"
+        operator: "Equal"
+        value: "master"
+        effect: "NoSchedule"
+      nodeSelector:
+        kubernetes.io/role: master
+      containers:
+      - name: mobsos-success-modeling
+        image: rwthacis/mobsos-success-modeling:develop
+        imagePullPolicy: Always
+        env: 
+        - name: BOOTSTRAP
+          value: "tech4comp.dbis.rwth-aachen.de:32320"
+        - name: LAS2PEER_ETH_HOST
+          value: las2peer-ethnet:8545
+        - name: LAS2PEER_PORT
+          value: "31508"
+        - name: MYSQL_PASSWORD
+          value: password
+        - name: MYSQL_USER
+          value: root
+        - name: SERVICE_EXTRA_ARGS
+          value: "--observer"
+        - name: MYSQL_HOST
+          value: "10.103.213.251"
+        - name: USE_FILE_SERVICE
+          value: "TRUE"
+        volumeMounts:
+        - name: pastry-config-volume
+          mountPath: /src/etc/pastry.properties
+          subPath: pastry-mobsos-success-modeling.properties
+        - name: registry-config-volume
+          mountPath: /src/etc/i5.las2peer.registry.data.RegistryConfiguration.properties
+          subPath: registry-config.properties
+        - name: las2peer-nodestorage-persistent
+          mountPath: /app/las2peer/node-storage
+      - name: mobsos-success-modeling-mysql
+        image: mysql:5.7
+        imagePullPolicy: IfNotPresent
+        env:
+        - name: MYSQL_DATABASE
+          value: LAS2PEERMON
+        - name: MYSQL_ROOT_PASSWORD
+          value: mobsos
+        ports:
+          - containerPort: 3306
+        volumeMounts:
+        - name: mysql-initdb
+          mountPath: /docker-entrypoint-initdb.d
+      volumes:
+      - name: pastry-config-volume
+        configMap:
+          name: pastry-config
+      - name: registry-config-volume
+        configMap:
+          name: registry-config
+      - name: mysql-initdb
+        configMap:
+          name: mysql-initdb-config
+      - name: las2peer-nodestorage-persistent
+        persistentVolumeClaim:
+          claimName: las2peer-nodestorage-pv-claim
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mobsos-success-modeling
+spec:
+  selector:
+    app: mobsos-success-modeling 
+  ports:
+  - port: 3306
+    nodePort: 32406
+    name: mysql
+  - port: 31508
+    nodePort: 31508
+    name: success-modeling
+    protocol: TCP
+  - port: 31508
+    nodePort: 31508
+    name: success-modeling-pastry
+    protocol: UDP
+  type: NodePort

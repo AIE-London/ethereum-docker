@@ -1,0 +1,71 @@
+apiVersion: apps/v1
+kind: Deployment 
+metadata:
+  name: mobsos-data-processing
+  labels:
+    app: mobsos-data-processing
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mobsos-data-processing
+  template:
+    metadata:
+      labels:
+        app: mobsos-data-processing
+    spec:
+      tolerations:
+      - key: "node-role.kubernetes.io"
+        operator: "Equal"
+        value: "master"
+        effect: "NoSchedule"
+      nodeSelector:
+        kubernetes.io/role: master
+      containers:
+      - name: mobsos-data-processing
+        env:
+        - name: BOOTSTRAP
+          value: "tech4comp.dbis.rwth-aachen.de:32320"
+        - name: LAS2PEER_ETH_HOST
+          value: las2peer-ethnet:8545
+        - name: LAS2PEER_PORT
+          value: "31500"
+        - name: MYSQL_USER
+          value: "root"
+        - name: MYSQL_PASSWORD # TODO: Use a secret instead!
+          value: "password"
+        - name: MYSQL_HOST
+          value: "10.103.213.251" # TODO: We could find this in $MOBSOS_MYSQL_SERVICE_HOST, how to copy?
+        - name: SEND_TO_LRS
+          value: "TRUE"
+        image: rwthacis/mobsos-data-processing:develop
+        imagePullPolicy: Always 
+        volumeMounts:
+        - name: pastry-config-volume
+          mountPath: /src/etc/pastry.properties
+          subPath: pastry-mobsos-data-processing.properties
+      volumes:
+      - name: pastry-config-volume
+        configMap:
+          name: pastry-config
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: mobsos-data-processing
+spec:
+  selector:
+    app: mobsos-data-processing 
+  ports:
+  - port: 8080
+    nodePort: 32445
+    name: webconnector
+  - port: 31500
+    nodePort: 31500
+    name: las2peer
+    protocol: TCP
+  - port: 31500
+    nodePort: 31500
+    name: las2peer-pastry
+    protocol: UDP
+  type: NodePort
