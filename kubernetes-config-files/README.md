@@ -107,20 +107,15 @@ This means we can reach the services via the ports described in the NodePort par
 The following command deploys the default las2peer bootstrap together with an ethereum blockchain. 
 Working directory is assumed to be kubernetes-config-files.
 ```bash
-kubectl apply -f ./las2peer-eth-netstats.yml
+kubectl apply -f .
 ```
 
 Shutdown of the deployed services can conversely be acchieved by the following: 
 ```bash
-kubectl delete -f ./las2peer-eth-netstats.yml
+kubectl delete -f .
 ```
 **Warning**: the -f option always parses the current version of the file. If you have changed a service name in the yaml file without deleting the old service first, this command will not be able to shut down properly.
 
-## Deploy services separately:
-
-```bash
-kubectl apply -f ./services
-```
 
 ## Restart pod
 
