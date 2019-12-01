@@ -45,7 +45,7 @@ spec:
         effect: "NoSchedule"
       containers:
       - name: ethereum
-        args: ["--datadir ~/.ethereum/devchain --nodekeyhex 091bd6067cb4612df85d9c1ff85cc47f259ced4d4cd99816b14f35650f59c322 --networkid 456719 --rpc --rpcaddr 0.0.0.0 --rpcapi db,personal,eth,net,web3,miner --rpccorsdomain=* --ws --wsaddr 0.0.0.0 --wsapi db,personal,eth,net,web3,miner --wsorigins=* --mine --minerthreads 1 --unlock 0,1 --password /dev/null --ethereum-mnemonic \"old puzzle vacant sing prison garment grief giraffe trap wire wrist kite begin crater dignity\""]
+        args: ["--datadir ~/.ethereum/devchain --nodekeyhex 091bd6067cb4612df85d9c1ff85cc47f259ced4d4cd99816b14f35650f59c322 --networkid 456719 --rpc --rpcaddr 0.0.0.0 --rpcapi db,personal,eth,net,web3,miner,debug --rpccorsdomain=* --ws --wsaddr 0.0.0.0 --wsapi db,personal,eth,net,web3,miner,debug --wsorigins=* --mine --minerthreads 1 --unlock 0,1 --password /dev/null --ethereum-mnemonic \"old puzzle vacant sing prison garment grief giraffe trap wire wrist kite begin crater dignity\""]
         command: ["/root/start.sh"]
         image: rwthacis/monitored-geth-client
         imagePullPolicy: IfNotPresent
@@ -60,9 +60,6 @@ spec:
           protocol: UDP
         - containerPort: 8545
         - containerPort: 8546
-        resources:
-          requests:
-            cpu: "100m"
       - name: netstats
         image: mslupczynski/eth-netstats:ma-mslupczynski
         imagePullPolicy: IfNotPresent
@@ -97,17 +94,27 @@ spec:
         image: mslupczynski/las2peer:ma-mslupczynski
         imagePullPolicy: Always 
         ports:
-        - containerPort: 9000
+        - containerPort: 32320
+        - containerPort: 32320
+          protocol: UDP
         - containerPort: 8080
         env:
         - name: LAS2PEER_ETH_HOST
           value: las2peer-ethnet:8545
         - name: NODE_ID_SEED
           value: "1"
+        - name: LAS2PEER_PORT
+          value: "32320"
         volumeMounts:
           - name: las2peer-nodestorage-persistent
             mountPath: /app/las2peer/node-storage
+          - name: pastry-config-volume
+            mountPath: /app/las2peer/etc/pastry.properties
+            subPath: pastry-las2peer.properties
       volumes:
+      - name: pastry-config-volume
+        configMap:
+          name: pastry-config
       - name: las2peer-nodestorage-persistent
         persistentVolumeClaim:
           claimName: las2peer-nodestorage-pv-claim
@@ -163,7 +170,11 @@ metadata:
 spec:
   ports:
   - name: "las2peer"
-    port: 9000
+    port: 32320
+    protocol: TCP
+  - name: "las2peer-udp"
+    port: 32320
+    protocol: UDP  
   - name: "las2peer-wc"
     port: 8080
   selector:
@@ -243,11 +254,11 @@ spec:
     port: 8080
     nodePort: 32319
   - name: "las2peer-external"
-    port: 9000
+    port: 32320
     nodePort: 32320
     protocol: TCP
   - name: "las2peer-ext-pastry-udp"
-    port: 9000
+    port: 32320
     nodePort: 32320
     protocol: UDP
   selector:
