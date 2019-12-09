@@ -13,7 +13,7 @@ spec:
     - ReadWriteOnce
   resources:
     requests:
-      storage: 2Gi
+      storage: 1Gi
 ---
 # =============================================================
 # DEPLOYMENT CONFIGURATION:
@@ -111,6 +111,9 @@ spec:
           - name: pastry-config-volume
             mountPath: /app/las2peer/etc/pastry.properties
             subPath: pastry-las2peer.properties
+          - name: nodeinfo-config-volume
+            mountPath: /app/las2peer/etc/nodeInfo.xml
+            subPath: nodeInfo.xml
       volumes:
       - name: pastry-config-volume
         configMap:
@@ -118,39 +121,9 @@ spec:
       - name: las2peer-nodestorage-persistent
         persistentVolumeClaim:
           claimName: las2peer-nodestorage-pv-claim
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: las2peer-eth-explorer
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      io.kompose.service: las2peer-eth-explorer
-  template:
-    metadata:
-      labels:
-        io.kompose.service: las2peer-eth-explorer
-    creationTimestamp: null
-    spec:
-      tolerations:
-      - key: "node-role.kubernetes.io"
-        operator: "Equal"
-        value: "master"
-        effect: "NoSchedule"
-      containers:
-      - name: eth-explorer
-        image: carechain/eth-explorer
-        imagePullPolicy: IfNotPresent
-        ports:
-          - containerPort: 8000
-        env:
-        - name: GETH_HOSTNAME
-          value: tech4comp.dbis.rwth-aachen.de
-        - name: GETH_RPCPORT
-          value: "31286"
-        - name: GETH_RPCCORS
+      - name: nodeinfo-config-volume
+        configMap:
+          name: nodeinfo-config
 ---
 # =============================================================
 # CLUSTER IP CONFIGURATION:
@@ -204,20 +177,6 @@ spec:
     io.kompose.service: las2peer-ethnet
   type: ClusterIP
 ---
-apiVersion: v1
-kind: Service
-metadata:
-  labels:
-    io.kompose.service: las2peer-eth-explorer
-  name: las2peer-eth-explorer
-spec:
-  ports:
-  - name: "eth-explorer"
-    port: 8000
-  selector:
-    io.kompose.service: las2peer-eth-explorer
-  type: ClusterIP
----
 # =============================================================
 # NODEPORT CONFIGURATION:
 # 
@@ -227,21 +186,6 @@ spec:
 #      CLUSTER ports
 #
 # =============================================================
-apiVersion: v1
-kind: Service
-metadata:
-  labels:
-    io.kompose.service: las2peer-eth-explorer-ports
-  name: las2peer-eth-explorer-ports
-spec:
-  ports:
-  - name: "eth-explorer-ui"
-    port: 8000
-    nodePort: 31288
-  selector:
-    io.kompose.service: las2peer-eth-explorer
-  type: NodePort
----
 apiVersion: v1
 kind: Service
 metadata:
