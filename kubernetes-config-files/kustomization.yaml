@@ -5,58 +5,81 @@ metadata:
 data:
   initdb.sql: |-
     DROP DATABASE IF EXISTS `LAS2PEERMON`;
-    CREATE DATABASE `LAS2PEERMON` /*!40100 DEFAULT CHARACTER SET utf8 */;
+    CREATE DATABASE `LAS2PEERMON`;
     USE `LAS2PEERMON`;    
 
-    DROP TABLE IF EXISTS MESSAGE, AGENT, REGISTERED_AT, NODE, SERVICE;
-    CREATE TABLE MESSAGE (
-      ID INT NOT NULL auto_increment,
-      EVENT VARCHAR(255) NOT NULL,
-      TIME_STAMP BIGINT NOT NULL,
-      SOURCE_NODE VARCHAR(255),
-      SOURCE_AGENT CHAR(32),
-      DESTINATION_NODE VARCHAR(255),
-      DESTINATION_AGENT CHAR(32),
-      REMARKS json DEFAULT NULL,
-      CONSTRAINT MESSAGE_PK PRIMARY KEY (ID)
-    );
-    CREATE TABLE AGENT (
-      AGENT_ID CHAR(32) NOT NULL,
-      TYPE ENUM("USER", "SERVICE", "GROUP", "MONITORING", "MEDIATOR"),
-      CONSTRAINT AGENT_PK PRIMARY KEY (AGENT_ID)
-    );
-    CREATE TABLE NODE (
-      NODE_ID VARCHAR(255) NOT NULL,
-      NODE_LOCATION VARCHAR(255) NOT NULL,
-      CONSTRAINT NODE_PK PRIMARY KEY (NODE_ID)
-    );
-    CREATE TABLE REGISTERED_AT (
-      REGISTRATION_DATE TIMESTAMP NULL,
-      UNREGISTRATION_DATE TIMESTAMP NULL,
-      AGENT_ID CHAR(32) NOT NULL,
-      RUNNING_AT VARCHAR(255),
-      CONSTRAINT AGENT_ID_FK FOREIGN KEY (AGENT_ID) REFERENCES AGENT(AGENT_ID),
-      CONSTRAINT RUNNING_AT_FK FOREIGN KEY (RUNNING_AT) REFERENCES NODE(NODE_ID)
-    );
-    CREATE TABLE SERVICE (
-      AGENT_ID CHAR(32) NOT NULL,
-      SERVICE_CLASS_NAME VARCHAR(255),
-      SERVICE_PATH VARCHAR(255) NULL,
-      CONSTRAINT SERVICE_PK PRIMARY KEY (AGENT_ID),
-      CONSTRAINT SERVICE_FK FOREIGN KEY (AGENT_ID) REFERENCES AGENT(AGENT_ID),
-      CONSTRAINT SERVICE_UK UNIQUE KEY (AGENT_ID,SERVICE_CLASS_NAME)
-    );
-    CREATE TABLE GROUP_INFORMATION
-    (
-        GROUP_AGENT_ID_MD5 CHAR(32) NOT NULL,
-        GROUP_AGENT_ID CHAR(128) NOT NULL,
-        GROUP_NAME VARCHAR(255) NOT NULL,
-        PUBLIC BOOLEAN,
-        CONSTRAINT GROUP_AGENT_ID_FK FOREIGN KEY (GROUP_AGENT_ID_MD5) REFERENCES AGENT(AGENT_ID)
-    );
+    --
+    -- Table structure for table `AGENT`
+    --
+    
+    DROP TABLE IF EXISTS `AGENT`;
+    CREATE TABLE `AGENT` (
+      `AGENT_ID` char(32) NOT NULL,
+      `TYPE` enum('USER','SERVICE','GROUP','MONITORING','MEDIATOR') DEFAULT NULL,
+      PRIMARY KEY (`AGENT_ID`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+    
+    --
+    -- Table structure for table `MESSAGE`
+    --
+    
+    DROP TABLE IF EXISTS `MESSAGE`;
+    CREATE TABLE `MESSAGE` (
+      `ID` int(11) NOT NULL AUTO_INCREMENT,
+      `EVENT` varchar(255) NOT NULL,
+      `TIME_STAMP` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+      `SOURCE_NODE` varchar(255) DEFAULT NULL,
+      `SOURCE_AGENT` char(32) DEFAULT NULL,
+      `DESTINATION_NODE` varchar(255) DEFAULT NULL,
+      `DESTINATION_AGENT` char(32) DEFAULT NULL,
+      `REMARKS` json DEFAULT NULL,
+      PRIMARY KEY (`ID`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=600334 DEFAULT CHARSET=latin1;
+    
+    --
+    -- Table structure for table `NODE`
+    --
+    
+    DROP TABLE IF EXISTS `NODE`;
+    CREATE TABLE `NODE` (
+      `NODE_ID` varchar(255) NOT NULL,
+      `NODE_LOCATION` varchar(255) NOT NULL,
+      PRIMARY KEY (`NODE_ID`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+    
+    --
+    -- Table structure for table `REGISTERED_AT`
+    --
+    
+    DROP TABLE IF EXISTS `REGISTERED_AT`;
+    CREATE TABLE `REGISTERED_AT` (
+      `REGISTRATION_DATE` timestamp NULL DEFAULT NULL,
+      `UNREGISTRATION_DATE` timestamp NULL DEFAULT NULL,
+      `AGENT_ID` char(32) NOT NULL,
+      `RUNNING_AT` varchar(255) DEFAULT NULL,
+      KEY `AGENT_ID_FK` (`AGENT_ID`),
+      KEY `RUNNING_AT_FK` (`RUNNING_AT`),
+      CONSTRAINT `AGENT_ID_FK` FOREIGN KEY (`AGENT_ID`) REFERENCES `AGENT` (`AGENT_ID`),
+      CONSTRAINT `RUNNING_AT_FK` FOREIGN KEY (`RUNNING_AT`) REFERENCES `NODE` (`NODE_ID`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+    
+    --
+    -- Table structure for table `SERVICE`
+    --
+    
+    DROP TABLE IF EXISTS `SERVICE`;
+    CREATE TABLE `SERVICE` (
+      `AGENT_ID` char(32) NOT NULL,
+      `SERVICE_CLASS_NAME` varchar(255) DEFAULT NULL,
+      `SERVICE_PATH` varchar(255) DEFAULT NULL,
+      PRIMARY KEY (`AGENT_ID`),
+      UNIQUE KEY `SERVICE_UK` (`AGENT_ID`,`SERVICE_CLASS_NAME`),
+      CONSTRAINT `SERVICE_FK` FOREIGN KEY (`AGENT_ID`) REFERENCES `AGENT` (`AGENT_ID`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+      
 
     DROP DATABASE IF EXISTS `QVS`;
-    CREATE DATABASE `QVS` /*!40100 DEFAULT CHARACTER SET utf8 */;
+    CREATE DATABASE `QVS`;
     USE `QVS`;
 
     DROP TABLE IF EXISTS `DATABASE_CONNECTIONS`;
@@ -136,6 +159,11 @@ data:
     external_address = tech4comp.dbis.rwth-aachen.de:31509
   pastry-las2peer.properties: |
     external_address = tech4comp.dbis.rwth-aachen.de:32320
+  pastry-mobsos-data-processing-2.properties: |
+    external_address = tech4comp.dbis.rwth-aachen.de:31136
+  pastry-mobsos-query-visualization-2.properties: |
+    external_address = tech4comp.dbis.rwth-aachen.de:31137
+
 ---
 apiVersion: v1
 kind: ConfigMap
@@ -186,3 +214,52 @@ data:
     exUser = root
     exPassword =
     exType = MySQL
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: core-services-webconnector-config
+data:
+  file-config.properties: |-
+    httpPort = 8081
+    httpsPort = 8091
+    startHttp = TRUE
+    startHttps = FALSE
+    sslKeystore = etc/example.jks
+    sslKeyPassword = secretpassword
+    crossOriginResourceDomain = *
+    crossOriginResourceMaxAge = 60
+    enableCrossOriginResourceSharing = TRUE
+  contact-config.properties: |-
+    httpPort = 8082
+    httpsPort = 8092
+    startHttp = TRUE
+    startHttps = FALSE
+    sslKeystore = etc/example.jks
+    sslKeyPassword = secretpassword
+    crossOriginResourceDomain = *
+    crossOriginResourceMaxAge = 60
+    enableCrossOriginResourceSharing = TRUE
+  ui-config.properties: |-
+    httpPort = 8082
+    httpsPort = 8092
+    startHttp = TRUE
+    startHttps = FALSE
+    sslKeystore = etc/example.jks
+    sslKeyPassword = secretpassword
+    crossOriginResourceDomain = *
+    crossOriginResourceMaxAge = 60
+    enableCrossOriginResourceSharing = TRUE
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nodeinfo-config
+data:
+  nodeInfo.xml: |-
+    <las2peerNode>
+      <adminName>test123</adminName>
+      <adminEmail>i4b6rm+8enwaqwgs3hpc@sharklasers.com</adminEmail>
+      <organization>Advanced Community Information Systems (ACIS) Group, RWTH Aachen University</organization>
+      <description>This node hosts the las2peer node with ethereum integration.</description>
+    </las2peerNode>
