@@ -33,13 +33,13 @@ spec:
         - name: LAS2PEER_PORT
           value: "31508"
         - name: MYSQL_PASSWORD
-          value: password
+          value: "password"
         - name: MYSQL_USER
           value: root
         - name: SERVICE_EXTRA_ARGS
           value: "--observer"
         - name: MYSQL_HOST
-          value: "10.103.213.251"
+          value: "10.103.213.251" # "10.103.213.251"
         - name: USE_FILE_SERVICE
           value: "TRUE"
         volumeMounts:
@@ -51,19 +51,6 @@ spec:
           subPath: registry-config.properties
         - name: las2peer-nodestorage-persistent
           mountPath: /app/las2peer/node-storage
-      - name: mobsos-success-modeling-mysql
-        image: mysql:5.7
-        imagePullPolicy: IfNotPresent
-        env:
-        - name: MYSQL_DATABASE
-          value: LAS2PEERMON
-        - name: MYSQL_ROOT_PASSWORD
-          value: mobsos
-        ports:
-          - containerPort: 3306
-        volumeMounts:
-        - name: mysql-initdb
-          mountPath: /docker-entrypoint-initdb.d
       volumes:
       - name: pastry-config-volume
         configMap:

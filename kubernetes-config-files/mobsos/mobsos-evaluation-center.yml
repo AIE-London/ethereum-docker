@@ -40,8 +40,6 @@ spec:
         - name: pastry-config-volume
           mountPath: /src/etc/pastry.properties
           subPath: pastry-mobsos-evaluation-center.properties
-        - name: las2peer-nodestorage-persistent
-          mountPath: /app/las2peer/node-storage
       - name: y-websocket-server
         image: rwthacis/y-websockets-server
         imagePullPolicy: IfNotPresent

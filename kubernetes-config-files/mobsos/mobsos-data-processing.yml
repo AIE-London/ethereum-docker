@@ -33,13 +33,13 @@ spec:
         - name: MYSQL_USER
           value: "root"
         - name: MYSQL_PASSWORD # TODO: Use a secret instead!
-          value: "password"
+          value: "password" #"password"
         - name: MYSQL_HOST
-          value: "10.103.213.251" # TODO: We could find this in $MOBSOS_MYSQL_SERVICE_HOST, how to copy?
+          value: "10.103.213.251" # "10.103.213.251" # TODO: We could find this in $MOBSOS_MYSQL_SERVICE_HOST, how to copy?
         - name: SEND_TO_LRS
           value: "TRUE"
         image: rwthacis/mobsos-data-processing:develop
-        imagePullPolicy: Always 
+        imagePullPolicy: IfNotPresent 
         volumeMounts:
         - name: pastry-config-volume
           mountPath: /src/etc/pastry.properties
