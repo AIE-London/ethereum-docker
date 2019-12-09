@@ -29,6 +29,12 @@ spec:
       - name: registry-config-volume
         configMap:
           name: registry-config
+      - name: core-services-webconnector-config-volume
+        configMap:
+          name: core-services-webconnector-config
+      - name: nodeinfo-config-volume
+        configMap:
+          name: nodeinfo-config
       containers:
       - name: las2peer-file-service
         env:
@@ -47,6 +53,12 @@ spec:
         - name: registry-config-volume
           mountPath: /src/etc/i5.las2peer.registry.data.RegistryConfiguration.properties
           subPath: registry-config.properties
+        - name: core-services-webconnector-config-volume
+          mountPath: /src/etc/i5.las2peer.connectors.webConnector.WebConnector.properties
+          subPath: file-config.properties
+        - name: nodeinfo-config-volume
+          mountPath: /src/etc/nodeInfo.xml
+          subPath: nodeInfo.xml
       - name: las2peer-contact-service
         env:
         - name: LAS2PEER_PORT
@@ -64,6 +76,12 @@ spec:
         - name: registry-config-volume
           mountPath: /src/etc/i5.las2peer.registry.data.RegistryConfiguration.properties
           subPath: registry-config.properties
+        - name: core-services-webconnector-config-volume
+          mountPath: /src/etc/i5.las2peer.connectors.webConnector.WebConnector.properties
+          subPath: contact-config.properties
+        - name: nodeinfo-config-volume
+          mountPath: /src/etc/nodeInfo.xml
+          subPath: nodeInfo.xml
       - name: las2peer-userinformation-service
         env:
         - name: LAS2PEER_PORT
@@ -81,6 +99,12 @@ spec:
         - name: registry-config-volume
           mountPath: /src/etc/i5.las2peer.registry.data.RegistryConfiguration.properties
           subPath: registry-config.properties
+        - name: core-services-webconnector-config-volume
+          mountPath: /src/etc/i5.las2peer.connectors.webConnector.WebConnector.properties
+          subPath: ui-config.properties
+        - name: nodeinfo-config-volume
+          mountPath: /src/etc/nodeInfo.xml
+          subPath: nodeInfo.xml
 ---
 apiVersion: v1
 kind: Service
