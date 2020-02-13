@@ -159,6 +159,8 @@ data:
     external_address = tech4comp.dbis.rwth-aachen.de:31509
   pastry-las2peer.properties: |
     external_address = tech4comp.dbis.rwth-aachen.de:32320
+  pastry-las2p.properties: |
+    external_address = tech4comp.dbis.rwth-aachen.de:32321
   pastry-mobsos-data-processing-2.properties: |
     external_address = tech4comp.dbis.rwth-aachen.de:31136
   pastry-mobsos-query-visualization-2.properties: |
@@ -260,6 +262,13 @@ data:
     <las2peerNode>
       <adminName>test123</adminName>
       <adminEmail>i4b6rm+8enwaqwgs3hpc@sharklasers.com</adminEmail>
+      <organization>Advanced Community Information Systems (ACIS) Group, RWTH Aachen University</organization>
+      <description>This node hosts the las2peer node with ethereum integration.</description>
+    </las2peerNode>
+  nodeInfo2.xml: |-
+    <las2peerNode>
+      <adminName>test321</adminName>
+      <adminEmail>i4h9bg+5l0q2h5b7h9vs@sharklasers.com</adminEmail>
       <organization>Advanced Community Information Systems (ACIS) Group, RWTH Aachen University</organization>
       <description>This node hosts the las2peer node with ethereum integration.</description>
     </las2peerNode>
