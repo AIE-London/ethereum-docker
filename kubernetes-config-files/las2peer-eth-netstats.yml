@@ -98,6 +98,7 @@ spec:
         - containerPort: 32320
           protocol: UDP
         - containerPort: 8080
+        - containerPort: 8001
         env:
         - name: LAS2PEER_ETH_HOST
           value: las2peer-ethnet:8545
@@ -150,6 +151,8 @@ spec:
     protocol: UDP  
   - name: "las2peer-wc"
     port: 8080
+  - name: "las2peer-config"
+    port: 8001
   selector:
     io.kompose.service: las2peer-bootstrap
   type: ClusterIP
@@ -197,6 +200,9 @@ spec:
   - name: "las2peer-external-webconnector"
     port: 8080
     nodePort: 32319
+  - name: "las2peer-external-config"
+    port: 8001
+    nodePort: 32318
   - name: "las2peer-external"
     port: 32320
     nodePort: 32320
