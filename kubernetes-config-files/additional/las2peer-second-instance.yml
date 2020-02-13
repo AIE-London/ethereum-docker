@@ -1,0 +1,111 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pastry-config
+data:
+  pastry-las2p.properties: |
+    external_address = tech4comp.dbis.rwth-aachen.de:32321  
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: las2peer-second-pod
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      io.kompose.service: las2peer-second-pod
+  template:
+    metadata:
+      labels:
+        io.kompose.service: las2peer-second-pod
+    creationTimestamp: null
+    spec:
+      tolerations:
+      - key: "node-role.kubernetes.io"
+        operator: "Equal"
+        value: "master"
+        effect: "NoSchedule"
+      containers:
+      - name: las2peer
+        image: mslupczynski/las2peer:ma-mslupczynski
+        imagePullPolicy: Always 
+        ports:
+        - containerPort: 32321
+        - containerPort: 32321
+          protocol: UDP
+        - containerPort: 8080
+        env:
+        - name: LAS2PEER_PORT
+          value: "32321"
+        - name: NODE_ID_SEED
+          value: "2"
+        volumeMounts:
+          - name: pastry-config-volume
+            mountPath: /app/las2peer/etc/pastry.properties
+            subPath: pastry-las2p.properties
+      volumes:
+      - name: pastry-config-volume
+        configMap:
+          name: pastry-config
+---
+# =============================================================
+# CLUSTER IP CONFIGURATION:
+# 
+#   MAPPING between 
+#      POD ports
+#             AND
+#      SERVICE ports
+#
+# =============================================================
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    io.kompose.service: las2peer-second-pod
+  name: las2peer-second-pod
+spec:
+  ports:
+  - name: "las2peer"
+    port: 32321
+    protocol: TCP
+  - name: "las2peer-udp"
+    port: 32321
+    protocol: UDP  
+  - name: "las2peer-wc"
+    port: 8080
+  selector:
+    io.kompose.service: las2peer-second-pod
+  type: ClusterIP
+---
+# =============================================================
+# NODEPORT CONFIGURATION:
+# 
+#   MAPPING between 
+#      SERVICE ports
+#             AND
+#      CLUSTER ports
+#
+# =============================================================
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    io.kompose.service: las2peer-p2p-ports-2
+  name: las2peer-p2p-ports-2
+spec:
+  ports:
+  - name: "las2peer-external-webconnector"
+    port: 8080
+    nodePort: 32322
+  - name: "las2peer-external"
+    port: 32321
+    nodePort: 32321
+    protocol: TCP
+  - name: "las2peer-ext-pastry-udp"
+    port: 32321
+    nodePort: 32321
+    protocol: UDP
+  selector:
+    io.kompose.service: las2peer-second-pod
+  type: NodePort
