@@ -63,37 +63,38 @@ if [ -n "$LAS2PEER_ETH_HOST" ]; then
     echo done.
 fi
 
+if [ -s "/app/las2peer/node-storage/migration.log" ]; then
+    echo Found old migration.log, importing...
+    cat /app/las2peer/node-storage/migration.log
+
+    cat /app/las2peer/node-storage/migration.log | grep -A5 "\(Deploying\|Replacing\|contract address\) \'\(CommunityTagIndex\|UserRegistry\|ServiceRegistry\|ReputationRegistry\)\'" | grep '\(Deploying\|Replacing\|contract address\)' | tr -d " '>:" | sed -e '$!N;s/\n//;s/Deploying//;s/Replacing//;s/contractaddress/Address = /;s/./\l&/' >> "${ETH_PROPS_DIR}${ETH_PROPS}"
+
+    echo done.
+fi
+
 if [ -n "$LAS2PEER_BOOTSTRAP" ]; then
     echo Skipping migration, contracts should already be deployed
 else
-    echo Waiting for Ethereum client at $(host $LAS2PEER_ETH_HOST):$(port $LAS2PEER_ETH_HOST)...
-    if waitForEndpoint $(host $LAS2PEER_ETH_HOST) $(port $LAS2PEER_ETH_HOST) 300; then
-        echo Found Eth client. 
-        if [ -s "/app/las2peer/node-storage/migration.log" ]; then
-            echo Found old migration.log, importing...
-            cat /app/las2peer/node-storage/migration.log
-
-            cat /app/las2peer/node-storage/migration.log | grep -A5 "\(Deploying\|Replacing\|contract address\) \'\(CommunityTagIndex\|UserRegistry\|ServiceRegistry\|ReputationRegistry\)\'" | grep '\(Deploying\|Replacing\|contract address\)' | tr -d " '>:" | sed -e '$!N;s/\n//;s/Deploying//;s/Replacing//;s/contractaddress/Address = /;s/./\l&/' >> "${ETH_PROPS_DIR}${ETH_PROPS}"
-            if [ -n grep -E "reputationRegistryAddress\|userRegistryAddress\|serviceRegistryAddress" -q "${ETH_PROPS_DIR}${ETH_PROPS}" ]; then
-                echo \[!\] import of old migration failed, missing contract address in logfile.
-                echo Running truffle migration
+    if [ -n "$LAS2PEER_ETH_HOST" ]; then
+        echo Waiting for Ethereum client at $(host $LAS2PEER_ETH_HOST):$(port $LAS2PEER_ETH_HOST)...
+        if waitForEndpoint $(host $LAS2PEER_ETH_HOST) $(port $LAS2PEER_ETH_HOST) 300; then
+            echo Found Eth client. 
+            if [ -s "/app/las2peer/node-storage/migration.log" ]; then
+                echo Migrated from logs.
+            else
                 truffleMigrate
             fi
-
-
-            echo done.
         else
-            truffleMigrate
+            echo Ethereum client not accessible. Aborting.
+            exit 2
         fi
-        echo Serving config files at :8001 ...
-        echo -e "\a" # ding
-        cd /app/las2peer/
-        pm2 start --silent http-server -- ./etc -p 8001
-    else
-        echo Ethereum client not accessible. Aborting.
-        exit 2
     fi
 fi
+
+echo Serving config files at :8001 ...
+echo -e "\a" # ding
+cd /app/las2peer/
+pm2 start --silent http-server -- ./etc -p 8001
 
 cd /app/las2peer
 if [ -n "$LAS2PEER_BOOTSTRAP" ]; then
@@ -120,4 +121,30 @@ function selectMnemonic {
 }
 
 echo Starting las2peer node ...
-java $(echo $ADDITIONAL_JAVA_ARGS) -cp "core/src/main/resources/:core/export/jars/*:restmapper/export/jars/*:webconnector/export/jars/*:core/lib/*:restmapper/lib/*:webconnector/lib/*" i5.las2peer.tools.L2pNodeLauncher --service-directory service --port $LAS2PEER_PORT $([ -n "$LAS2PEER_BOOTSTRAP" ] && echo "--bootstrap $LAS2PEER_BOOTSTRAP") --node-id-seed $NODE_ID_SEED --ethereum-mnemonic "$(selectMnemonic)" $(echo $ADDITIONAL_LAUNCHER_ARGS) startWebConnector "node=getNodeAsEthereumNode()" "registry=node.getRegistryClient()" "n=getNodeAsEthereumNode()" "r=n.getRegistryClient()" $(echo $ADDITIONAL_PROMPT_CMDS) interactive
+if [ -n "$LAS2PEER_ETH_HOST" ]; then
+    echo ... using ethereum boot procedure: 
+    java $(echo $ADDITIONAL_JAVA_ARGS) \
+        -cp "core/src/main/resources/:core/export/jars/*:restmapper/export/jars/*:webconnector/export/jars/*:core/lib/*:restmapper/lib/*:webconnector/lib/*" i5.las2peer.tools.L2pNodeLauncher \
+        --service-directory service \
+        --port $LAS2PEER_PORT \
+        $([ -n "$LAS2PEER_BOOTSTRAP" ] && echo "--bootstrap $LAS2PEER_BOOTSTRAP") \
+        --node-id-seed $NODE_ID_SEED \
+        --ethereum-mnemonic "$(selectMnemonic)" \
+        $(echo $ADDITIONAL_LAUNCHER_ARGS) \
+        startWebConnector \
+        "node=getNodeAsEthereumNode()" "registry=node.getRegistryClient()" "n=getNodeAsEthereumNode()" "r=n.getRegistryClient()" \
+        $(echo $ADDITIONAL_PROMPT_CMDS) \
+        interactive
+else
+    echo ... using non-ethereum boot procedure:
+    java $(echo $ADDITIONAL_JAVA_ARGS) \
+        -cp "core/src/main/resources/:core/export/jars/*:restmapper/export/jars/*:webconnector/export/jars/*:core/lib/*:restmapper/lib/*:webconnector/lib/*" i5.las2peer.tools.L2pNodeLauncher \
+        --service-directory service \
+        --port $LAS2PEER_PORT \
+        $([ -n "$LAS2PEER_BOOTSTRAP" ] && echo "--bootstrap $LAS2PEER_BOOTSTRAP") \
+        --node-id-seed $NODE_ID_SEED \
+        $(echo $ADDITIONAL_LAUNCHER_ARGS) \
+        startWebConnector \
+        $(echo $ADDITIONAL_PROMPT_CMDS) \
+        interactive
+fi
