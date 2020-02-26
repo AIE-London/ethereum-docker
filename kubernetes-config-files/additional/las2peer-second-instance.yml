@@ -4,7 +4,7 @@ metadata:
   name: pastry-config
 data:
   pastry-las2p.properties: |
-    external_address = tech4comp.dbis.rwth-aachen.de:32321  
+    external_address = tech4comp.dbis.rwth-aachen.de:31321  
 ---
 apiVersion: apps/v1
 kind: Deployment
@@ -31,13 +31,13 @@ spec:
         image: mslupczynski/las2peer:ma-mslupczynski
         imagePullPolicy: Always 
         ports:
-        - containerPort: 32321
-        - containerPort: 32321
+        - containerPort: 31321
+        - containerPort: 31321
           protocol: UDP
         - containerPort: 8080
         env:
         - name: LAS2PEER_PORT
-          value: "32321"
+          value: "31321"
         - name: NODE_ID_SEED
           value: "2"
         volumeMounts:
@@ -67,10 +67,10 @@ metadata:
 spec:
   ports:
   - name: "las2peer"
-    port: 32321
+    port: 31321
     protocol: TCP
   - name: "las2peer-udp"
-    port: 32321
+    port: 31321
     protocol: UDP  
   - name: "las2peer-wc"
     port: 8080
@@ -97,14 +97,14 @@ spec:
   ports:
   - name: "las2peer-external-webconnector"
     port: 8080
-    nodePort: 32322
+    nodePort: 31322
   - name: "las2peer-external"
-    port: 32321
-    nodePort: 32321
+    port: 31321
+    nodePort: 31321
     protocol: TCP
   - name: "las2peer-ext-pastry-udp"
-    port: 32321
-    nodePort: 32321
+    port: 31321
+    nodePort: 31321
     protocol: UDP
   selector:
     io.kompose.service: las2peer-second-pod
