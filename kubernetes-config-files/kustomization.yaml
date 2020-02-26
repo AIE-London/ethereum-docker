@@ -158,9 +158,9 @@ data:
   pastry-mobsos-evaluation-center.properties: |
     external_address = tech4comp.dbis.rwth-aachen.de:31509
   pastry-las2peer.properties: |
-    external_address = tech4comp.dbis.rwth-aachen.de:32320
+    external_address = tech4comp.dbis.rwth-aachen.de:31320
   pastry-las2p.properties: |
-    external_address = tech4comp.dbis.rwth-aachen.de:32321
+    external_address = tech4comp.dbis.rwth-aachen.de:31321
   pastry-mobsos-data-processing-2.properties: |
     external_address = tech4comp.dbis.rwth-aachen.de:31136
   pastry-mobsos-query-visualization-2.properties: |
