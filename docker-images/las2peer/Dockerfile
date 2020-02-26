@@ -54,6 +54,7 @@ RUN ant build-only-no-bundle
 
 WORKDIR /app
 COPY --chown=build:build ./etc /app/las2peer/etc
+COPY --chown=build:build ./service /app/las2peer/service
 COPY --chown=build:build ./keystore /app/keystore
 COPY --chown=build:build ./start.sh /app/start.sh
 RUN chmod +x /app/start.sh
