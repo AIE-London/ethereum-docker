@@ -25,7 +25,7 @@ spec:
       - name: mobsos-data-processing
         env:
         - name: BOOTSTRAP
-          value: "tech4comp.dbis.rwth-aachen.de:32320"
+          value: "tech4comp.dbis.rwth-aachen.de:31320" # udp
         - name: LAS2PEER_ETH_HOST
           value: las2peer-ethnet:8545
         - name: LAS2PEER_PORT
@@ -35,7 +35,8 @@ spec:
         - name: MYSQL_PASSWORD # TODO: Use a secret instead!
           value: "password" #"password"
         - name: MYSQL_HOST
-          value: "10.103.213.251" # "10.103.213.251" # TODO: We could find this in $MOBSOS_MYSQL_SERVICE_HOST, how to copy?
+          value: "10.97.18.122"
+          # value: "10.103.213.251" # "10.103.213.251" # TODO: We could find this in $MOBSOS_MYSQL_SERVICE_HOST, how to copy?
         - name: SEND_TO_LRS
           value: "TRUE"
         image: rwthacis/mobsos-data-processing:develop
@@ -48,6 +49,9 @@ spec:
       - name: pastry-config-volume
         configMap:
           name: pastry-config
+      - name: mysql-initdb
+        configMap:
+          name: mysql-initdb-config
 ---
 apiVersion: v1
 kind: Service
@@ -60,6 +64,9 @@ spec:
   - port: 8080
     nodePort: 32445
     name: webconnector
+  - port: 3306
+    nodePort: 32407
+    name: mysql
   - port: 31500
     nodePort: 31500
     name: las2peer
@@ -69,3 +76,14 @@ spec:
     name: las2peer-pastry
     protocol: UDP
   type: NodePort
+---
+  apiVersion: v1
+  kind: Service
+  metadata:
+    name: data-processing-mysql
+  spec:
+    ports:
+    - port: 3306
+    selector:
+      app: mobsos-data-processing
+    clusterIP: None

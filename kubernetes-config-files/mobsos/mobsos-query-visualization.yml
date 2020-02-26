@@ -27,7 +27,7 @@ spec:
         imagePullPolicy: Always
         env: 
         - name: BOOTSTRAP
-          value: "tech4comp.dbis.rwth-aachen.de:32320"
+          value: "tech4comp.dbis.rwth-aachen.de:31320" # udp
         - name: LAS2PEER_ETH_HOST
           value: las2peer-ethnet:8545
         - name: LAS2PEER_PORT
@@ -39,7 +39,8 @@ spec:
         - name: SERVICE_EXTRA_ARGS
           value: "--observer"
         - name: MYSQL_HOST
-          value: "10.103.213.251"
+          # value: "10.103.213.251"
+          value: "10.97.18.122"
         - name: USE_FILE_SERVICE
           value: "TRUE"
         volumeMounts:

@@ -29,7 +29,7 @@ spec:
         - name: LAS2PEER_PORT
           value: "31509"
         - name: BOOTSTRAP
-          value: "http://tech4comp.dbis.rwth-aachen.de:32319"
+          value: "http://tech4comp.dbis.rwth-aachen.de:31319" # http 
         - name: Y_WEBSOCKET
           # value: "l2p-yjs-websockets-server-2.herokuapp.com:1234"
           # value: "cloud10.dbis.rwth-aachen.de:8083"
@@ -52,9 +52,6 @@ spec:
       - name: pastry-config-volume
         configMap:
           name: pastry-config
-      - name: las2peer-nodestorage-persistent
-        persistentVolumeClaim:
-          claimName: las2peer-nodestorage-pv-claim
 ---
 apiVersion: v1
 kind: Service
