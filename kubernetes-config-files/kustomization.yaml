@@ -1,0 +1,274 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mysql-initdb-config
+data:
+  initdb.sql: |-
+    DROP DATABASE IF EXISTS `LAS2PEERMON`;
+    CREATE DATABASE `LAS2PEERMON`;
+    USE `LAS2PEERMON`;    
+
+    --
+    -- Table structure for table `AGENT`
+    --
+    
+    DROP TABLE IF EXISTS `AGENT`;
+    CREATE TABLE `AGENT` (
+      `AGENT_ID` char(32) NOT NULL,
+      `TYPE` enum('USER','SERVICE','GROUP','MONITORING','MEDIATOR') DEFAULT NULL,
+      PRIMARY KEY (`AGENT_ID`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+    
+    --
+    -- Table structure for table `MESSAGE`
+    --
+    
+    DROP TABLE IF EXISTS `MESSAGE`;
+    CREATE TABLE `MESSAGE` (
+      `ID` int(11) NOT NULL AUTO_INCREMENT,
+      `EVENT` varchar(255) NOT NULL,
+      `TIME_STAMP` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+      `SOURCE_NODE` varchar(255) DEFAULT NULL,
+      `SOURCE_AGENT` char(32) DEFAULT NULL,
+      `DESTINATION_NODE` varchar(255) DEFAULT NULL,
+      `DESTINATION_AGENT` char(32) DEFAULT NULL,
+      `REMARKS` json DEFAULT NULL,
+      PRIMARY KEY (`ID`)
+    ) ENGINE=InnoDB AUTO_INCREMENT=600334 DEFAULT CHARSET=latin1;
+    
+    --
+    -- Table structure for table `NODE`
+    --
+    
+    DROP TABLE IF EXISTS `NODE`;
+    CREATE TABLE `NODE` (
+      `NODE_ID` varchar(255) NOT NULL,
+      `NODE_LOCATION` varchar(255) NOT NULL,
+      PRIMARY KEY (`NODE_ID`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+    
+    --
+    -- Table structure for table `REGISTERED_AT`
+    --
+    
+    DROP TABLE IF EXISTS `REGISTERED_AT`;
+    CREATE TABLE `REGISTERED_AT` (
+      `REGISTRATION_DATE` timestamp NULL DEFAULT NULL,
+      `UNREGISTRATION_DATE` timestamp NULL DEFAULT NULL,
+      `AGENT_ID` char(32) NOT NULL,
+      `RUNNING_AT` varchar(255) DEFAULT NULL,
+      KEY `AGENT_ID_FK` (`AGENT_ID`),
+      KEY `RUNNING_AT_FK` (`RUNNING_AT`),
+      CONSTRAINT `AGENT_ID_FK` FOREIGN KEY (`AGENT_ID`) REFERENCES `AGENT` (`AGENT_ID`),
+      CONSTRAINT `RUNNING_AT_FK` FOREIGN KEY (`RUNNING_AT`) REFERENCES `NODE` (`NODE_ID`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+    
+    --
+    -- Table structure for table `SERVICE`
+    --
+    
+    DROP TABLE IF EXISTS `SERVICE`;
+    CREATE TABLE `SERVICE` (
+      `AGENT_ID` char(32) NOT NULL,
+      `SERVICE_CLASS_NAME` varchar(255) DEFAULT NULL,
+      `SERVICE_PATH` varchar(255) DEFAULT NULL,
+      PRIMARY KEY (`AGENT_ID`),
+      UNIQUE KEY `SERVICE_UK` (`AGENT_ID`,`SERVICE_CLASS_NAME`),
+      CONSTRAINT `SERVICE_FK` FOREIGN KEY (`AGENT_ID`) REFERENCES `AGENT` (`AGENT_ID`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+      
+
+    DROP DATABASE IF EXISTS `QVS`;
+    CREATE DATABASE `QVS`;
+    USE `QVS`;
+
+    DROP TABLE IF EXISTS `DATABASE_CONNECTIONS`;
+    CREATE TABLE `DATABASE_CONNECTIONS` (
+      `JDBCINFO` int(11) NOT NULL,
+      `KEY` varchar(255) NOT NULL,
+      `USERNAME` varchar(255) NOT NULL,
+      `PASSWORD` varchar(255) NOT NULL,
+      `DATABASE` varchar(255) NOT NULL,
+      `HOST` varchar(255) NOT NULL,
+      `PORT` varchar(5) NOT NULL,
+      `USER` varchar(128) NOT NULL,
+      PRIMARY KEY (`KEY`,`USER`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+    DROP TABLE IF EXISTS `FILTERS`;
+    CREATE TABLE `FILTERS` (
+      `KEY` varchar(45) NOT NULL,
+      `QUERY` text NOT NULL,
+      `USER` varchar(128) NOT NULL,
+      `DB_KEY` varchar(45) NOT NULL,
+      PRIMARY KEY (`KEY`,`USER`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+    DROP TABLE IF EXISTS `QUERIES`;
+    CREATE TABLE `QUERIES` (
+      `KEY` varchar(45) NOT NULL,
+      `USER` varchar(128) NOT NULL,
+      `USERNAME` varchar(255) NOT NULL,
+      `PASSWORD` varchar(255) NOT NULL,
+      `JDBCINFO` int(11) NOT NULL,
+      `DATABASE_KEY` varchar(255) NOT NULL,
+      `DATABASE_NAME` varchar(255) NOT NULL,
+      `HOST` varchar(255) NOT NULL,
+      `PORT` int(11) NOT NULL,
+      `USE_CACHE` varchar(1) DEFAULT '0',
+      `QUERY_STATEMENT` text NOT NULL,
+      `FILTER_DEFAULTS` text NOT NULL,
+      `MODIFICATION_TYPE` int(11) NOT NULL,
+      `VISUALIZATION_TYPE` varchar(30) NOT NULL,
+      `VISUALIZATION_TITLE` varchar(255) DEFAULT NULL,
+      `VISUALIZATION_HEIGHT` int(11) DEFAULT NULL,
+      `VISUALIZATION_WIDTH` int(11) DEFAULT NULL,
+      PRIMARY KEY (`KEY`,`USER`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+    DROP TABLE IF EXISTS `USERS`;
+    CREATE TABLE `USERS` (
+      `ID` varchar(128) NOT NULL,
+      PRIMARY KEY (`ID`)
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+    INSERT INTO `USERS`(`ID`) VALUES ("anonymous");
+    INSERT INTO `DATABASE_CONNECTIONS` (
+        `JDBCINFO`, `KEY`, `USERNAME`, `PASSWORD`, `DATABASE`, `HOST`, `PORT`, `USER`
+      ) VALUES (
+        2, "__mobsos", "root", "mobsos", "OVS", "localhost", "3306", "anonymous"
+      );
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: pastry-config
+data:
+  pastry-mobsos-data-processing.properties: |
+    external_address = tech4comp.dbis.rwth-aachen.de:31500
+  pastry-las2peer-userinformation-service.properties: |
+    external_address = tech4comp.dbis.rwth-aachen.de:31504
+  pastry-las2peer-file-service.properties: |
+    external_address = tech4comp.dbis.rwth-aachen.de:31505
+  pastry-las2peer-contact-service.properties: |
+    external_address = tech4comp.dbis.rwth-aachen.de:31506 
+  pastry-mobsos-surveys.properties: |
+    external_address = tech4comp.dbis.rwth-aachen.de:31507
+  pastry-mobsos-success-modeling.properties: |
+    external_address = tech4comp.dbis.rwth-aachen.de:31508
+  pastry-mobsos-query-visualization.properties: |
+    external_address = tech4comp.dbis.rwth-aachen.de:31510
+  pastry-mobsos-evaluation-center.properties: |
+    external_address = tech4comp.dbis.rwth-aachen.de:31509
+  pastry-las2peer.properties: |
+    external_address = tech4comp.dbis.rwth-aachen.de:31320
+  pastry-las2p.properties: |
+    external_address = tech4comp.dbis.rwth-aachen.de:31321
+  pastry-mobsos-data-processing-2.properties: |
+    external_address = tech4comp.dbis.rwth-aachen.de:31136
+  pastry-mobsos-query-visualization-2.properties: |
+    external_address = tech4comp.dbis.rwth-aachen.de:31137
+
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: registry-config
+data:
+  registry-config.properties: |-
+    endpoint = http://las2peer-ethnet:8545
+    gasPrice = 20000000000
+    gasLimit = 6721975
+    communityTagIndexAddress = 0xeB510FB89C25cc1Af61fE45B965b5Fe27F1BCBa0
+    userRegistryAddress = 0x0e8acA05A8B35516504690Fa97fAEa69bbAFf901
+    reputationRegistryAddress = 0xd35284B7644732094338559c13a5CE880D247D37
+    serviceRegistryAddress = 0x4930DC85997124F6cFBe8fAE727EA69E9577BBBc
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: mobsos-qvs-webconnector-config
+data:
+  webconnector-config.properties: |-
+    httpPort = 8080
+    httpsPort = 8090
+    startHttp = TRUE
+    startHttps = FALSE
+    sslKeystore = etc/example.jks
+    sslKeyPassword = secretpassword
+    crossOriginResourceDomain = *
+    crossOriginResourceMaxAge = 60
+    enableCrossOriginResourceSharing = TRUE
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: qvs-config
+data:
+  qvs-config.properties: |-
+    stDbKey = storage
+    stDbHost = localhost
+    stDbPort = 3306
+    stDbDatabase = QVS
+    stDbUser = root
+    stDbPassword = 
+    exKey = example
+    exHost = localhost
+    exPort = 3306
+    exDatabase = classicmodels
+    exUser = root
+    exPassword =
+    exType = MySQL
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: core-services-webconnector-config
+data:
+  file-config.properties: |-
+    httpPort = 8081
+    httpsPort = 8091
+    startHttp = TRUE
+    startHttps = FALSE
+    sslKeystore = etc/example.jks
+    sslKeyPassword = secretpassword
+    crossOriginResourceDomain = *
+    crossOriginResourceMaxAge = 60
+    enableCrossOriginResourceSharing = TRUE
+  contact-config.properties: |-
+    httpPort = 8082
+    httpsPort = 8092
+    startHttp = TRUE
+    startHttps = FALSE
+    sslKeystore = etc/example.jks
+    sslKeyPassword = secretpassword
+    crossOriginResourceDomain = *
+    crossOriginResourceMaxAge = 60
+    enableCrossOriginResourceSharing = TRUE
+  ui-config.properties: |-
+    httpPort = 8082
+    httpsPort = 8092
+    startHttp = TRUE
+    startHttps = FALSE
+    sslKeystore = etc/example.jks
+    sslKeyPassword = secretpassword
+    crossOriginResourceDomain = *
+    crossOriginResourceMaxAge = 60
+    enableCrossOriginResourceSharing = TRUE
+---
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: nodeinfo-config
+data:
+  nodeInfo.xml: |-
+    <las2peerNode>
+      <adminName>test123</adminName>
+      <adminEmail>i4b6rm+8enwaqwgs3hpc@sharklasers.com</adminEmail>
+      <organization>Advanced Community Information Systems (ACIS) Group, RWTH Aachen University</organization>
+      <description>This node hosts the las2peer node with ethereum integration.</description>
+    </las2peerNode>
+  nodeInfo2.xml: |-
+    <las2peerNode>
+      <adminName>test321</adminName>
+      <adminEmail>i4h9bg+5l0q2h5b7h9vs@sharklasers.com</adminEmail>
+      <organization>Advanced Community Information Systems (ACIS) Group, RWTH Aachen University</organization>
+      <description>This node hosts the las2peer node with ethereum integration.</description>
+    </las2peerNode>

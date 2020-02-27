@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ResourceQuota
+metadata:
+  name: test-space-quota
+  namespace: mslup
+spec:
+  hard:
+    memory: 20Gi

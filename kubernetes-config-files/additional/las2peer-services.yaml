@@ -1,0 +1,141 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: las2peer-core-services
+  labels:
+    app: las2peer-core-services
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: las2peer-core-services
+  template:
+    metadata:
+      labels:
+        app: las2peer-core-services
+    spec:
+      # Force to run on master node as the domain resolves to its IP
+      tolerations:
+      - key: "node-role.kubernetes.io"
+        operator: "Equal"
+        value: "master"
+        effect: "NoSchedule"
+      nodeSelector:
+        kubernetes.io/role: master
+      volumes:
+      - name: pastry-config-volume
+        configMap:
+          name: pastry-config
+      - name: registry-config-volume
+        configMap:
+          name: registry-config
+      - name: core-services-webconnector-config-volume
+        configMap:
+          name: core-services-webconnector-config
+      - name: nodeinfo-config-volume
+        configMap:
+          name: nodeinfo-config
+      containers:
+      - name: las2peer-file-service
+        env:
+        - name: LAS2PEER_PORT
+          value: "31505"
+        - name: LAS2PEER_ETH_HOST
+          value: las2peer-ethnet:8545
+        - name: BOOTSTRAP
+          value: "tech4comp.dbis.rwth-aachen.de:32320" #todo change to mobsos port (kubectl get all mobsos ip addresse)
+        image: rwthacis/las2peer-file-service
+        imagePullPolicy: Always
+        volumeMounts:
+        - name: pastry-config-volume
+          mountPath: /src/etc/pastry.properties
+          subPath: pastry-las2peer-file-service.properties
+        - name: registry-config-volume
+          mountPath: /src/etc/i5.las2peer.registry.data.RegistryConfiguration.properties
+          subPath: registry-config.properties
+        - name: core-services-webconnector-config-volume
+          mountPath: /src/etc/i5.las2peer.connectors.webConnector.WebConnector.properties
+          subPath: file-config.properties
+        - name: nodeinfo-config-volume
+          mountPath: /src/etc/nodeInfo.xml
+          subPath: nodeInfo.xml
+      - name: las2peer-contact-service
+        env:
+        - name: LAS2PEER_PORT
+          value: "31506"
+        - name: LAS2PEER_ETH_HOST
+          value: las2peer-ethnet:8545
+        - name: BOOTSTRAP
+          value: "tech4comp.dbis.rwth-aachen.de:32320" #todo change to mobsos port (kubectl get all mobsos ip addresse)
+        image: rwthacis/las2peer-contact-service
+        imagePullPolicy: Always
+        volumeMounts:
+        - name: pastry-config-volume
+          mountPath: /src/etc/pastry.properties
+          subPath: pastry-las2peer-contact-service.properties
+        - name: registry-config-volume
+          mountPath: /src/etc/i5.las2peer.registry.data.RegistryConfiguration.properties
+          subPath: registry-config.properties
+        - name: core-services-webconnector-config-volume
+          mountPath: /src/etc/i5.las2peer.connectors.webConnector.WebConnector.properties
+          subPath: contact-config.properties
+        - name: nodeinfo-config-volume
+          mountPath: /src/etc/nodeInfo.xml
+          subPath: nodeInfo.xml
+      - name: las2peer-userinformation-service
+        env:
+        - name: LAS2PEER_PORT
+          value: "31504"
+        - name: LAS2PEER_ETH_HOST
+          value: las2peer-ethnet:8545
+        - name: BOOTSTRAP
+          value: "tech4comp.dbis.rwth-aachen.de:32320" #todo change to mobsos port (kubectl get all mobsos ip addresse)
+        image: rwthacis/las2peer-userinformation-service
+        imagePullPolicy: Always
+        volumeMounts:
+        - name: pastry-config-volume
+          mountPath: /src/etc/pastry.properties
+          subPath: pastry-las2peer-userinformation-service.properties
+        - name: registry-config-volume
+          mountPath: /src/etc/i5.las2peer.registry.data.RegistryConfiguration.properties
+          subPath: registry-config.properties
+        - name: core-services-webconnector-config-volume
+          mountPath: /src/etc/i5.las2peer.connectors.webConnector.WebConnector.properties
+          subPath: ui-config.properties
+        - name: nodeinfo-config-volume
+          mountPath: /src/etc/nodeInfo.xml
+          subPath: nodeInfo.xml
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: las2peer-core-services
+spec:
+  selector:
+    app: las2peer-core-services
+  ports:
+  - port: 31505
+    nodePort: 31505
+    name: las2peer-files
+    protocol: TCP
+  - port: 31505
+    nodePort: 31505
+    name: las2peer-files-pastry
+    protocol: UDP
+  - port: 31506
+    nodePort: 31506
+    name: las2peer-contacts
+    protocol: TCP
+  - port: 31506
+    nodePort: 31506
+    name: las2peer-contacts-pastry
+    protocol: UDP
+  - port: 31504
+    nodePort: 31504
+    name: las2peer-users
+    protocol: TCP
+  - port: 31504
+    nodePort: 31504
+    name: las2peer-users-pastry
+    protocol: UDP
+  type: NodePort
