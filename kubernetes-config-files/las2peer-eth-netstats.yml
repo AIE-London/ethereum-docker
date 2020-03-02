@@ -91,7 +91,7 @@ spec:
         effect: "NoSchedule"
       containers:
       - name: las2peer
-        image: mslupczynski/las2peer:ma-mslupczynski
+        image: rwth-acis/las2peer:master
         imagePullPolicy: Always 
         ports:
         - containerPort: 31011

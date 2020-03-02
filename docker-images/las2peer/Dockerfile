@@ -6,11 +6,12 @@ RUN addgroup -g 1000 -S build && adduser -u 1000 -S build -G build
 RUN mkdir /app-cache && chown build:build /app-cache
 USER build
 WORKDIR /app-cache
-RUN git clone https://github.com/rwth-acis/las2peer-registry-contracts.git -b develop
+RUN git clone https://github.com/rwth-acis/las2peer-registry-contracts.git -b master
 WORKDIR /app-cache/las2peer-registry-contracts
 RUN npm install
 WORKDIR /app-cache
-RUN git clone https://github.com/rwth-acis/las2peer.git -b develop
+# RUN git clone https://github.com/rwth-acis/las2peer/ -b develop
+RUN git clone --single-branch --branch master https://github.com/rwth-acis/las2peer/
 WORKDIR /app-cache/las2peer
 RUN ant build-only-no-bundle
 
@@ -36,16 +37,16 @@ RUN git clone https://github.com/ettore26/wait-for-command
 COPY --from=buildcache --chown=build:build /home/build/.ivy2 /home/build/.ivy2
 
 # cache bust, see https://stackoverflow.com/a/39278224
-ADD https://api.github.com/repos/rwth-acis/las2peer-registry-contracts/git/refs/heads/ma-mslupczynski version.json
-RUN git clone https://github.com/rwth-acis/las2peer-registry-contracts.git -b ma-mslupczynski
+ADD https://api.github.com/repos/rwth-acis/las2peer-registry-contracts/git/refs/heads/master version.json
+RUN git clone https://github.com/rwth-acis/las2peer-registry-contracts.git -b master
 WORKDIR /app/las2peer-registry-contracts
 COPY --from=buildcache --chown=build:build /app-cache/las2peer-registry-contracts/node_modules /app/las2peer-registry-contracts/node_modules
 RUN npm install
 
 WORKDIR /app
 # cache bust, see https://stackoverflow.com/a/39278224
-ADD https://api.github.com/repos/rwth-acis/las2peer/git/refs/heads/ma-mslupczynski version.json
-RUN git clone https://github.com/rwth-acis/las2peer.git -b ma-mslupczynski
+ADD https://api.github.com/repos/rwth-acis/las2peer/git/refs/heads/master version.json
+RUN git clone https://github.com/rwth-acis/las2peer.git -b master
 COPY --from=buildcache --chown=build:build /app-cache/las2peer/webconnector/frontend/node_modules /app/las2peer/webconnector/frontend/node_modules
 
 WORKDIR /app/las2peer
