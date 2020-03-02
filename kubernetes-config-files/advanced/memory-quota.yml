@@ -2,7 +2,20 @@ apiVersion: v1
 kind: ResourceQuota
 metadata:
   name: test-space-quota
-  namespace: mslup
+  namespace: mobsos
 spec:
   hard:
-    memory: 20Gi
+    limits.memory: 20Gi
+---
+  apiVersion: v1
+  kind: LimitRange
+  metadata:
+    name: mem-limit-range
+    namespace: mobsos
+  spec:
+    limits:
+    - default:
+        memory: 2Gi
+      defaultRequest:
+        memory: 1Gi
+      type: Container

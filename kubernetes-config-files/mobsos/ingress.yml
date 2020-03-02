@@ -1,0 +1,22 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/custom-http-errors: "418"
+    nginx.ingress.kubernetes.io/default-backend: error-pages
+  name: mobsos-eval-center
+  namespace: mobsos
+spec:
+  rules:
+  - host: monitor.tech4comp.dbis.rwth-aachen.de
+    http:
+      paths:
+      - backend:
+          serviceName: mobsos-eval-center
+          servicePort: 4200
+        path: /
+  tls:
+  - hosts:
+    - monitor.tech4comp.dbis.rwth-aachen.de
+    secretName: nginx-tls

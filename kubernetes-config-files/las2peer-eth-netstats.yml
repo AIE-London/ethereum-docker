@@ -94,8 +94,8 @@ spec:
         image: mslupczynski/las2peer:ma-mslupczynski
         imagePullPolicy: Always 
         ports:
-        - containerPort: 31320
-        - containerPort: 31320
+        - containerPort: 31011
+        - containerPort: 31011
           protocol: UDP
         - containerPort: 8080
         - containerPort: 8001
@@ -105,13 +105,13 @@ spec:
         - name: NODE_ID_SEED
           value: "1"
         - name: LAS2PEER_PORT
-          value: "31320"
+          value: "31011"
         volumeMounts:
           - name: las2peer-nodestorage-persistent
             mountPath: /app/las2peer/node-storage
           - name: pastry-config-volume
             mountPath: /app/las2peer/etc/pastry.properties
-            subPath: pastry-las2peer.properties
+            subPath: pastry-las2peer-two.properties
           - name: nodeinfo-config-volume
             mountPath: /app/las2peer/etc/nodeInfo.xml
             subPath: nodeInfo.xml
@@ -144,10 +144,10 @@ metadata:
 spec:
   ports:
   - name: "las2peer"
-    port: 31320
+    port: 31011
     protocol: TCP
   - name: "las2peer-udp"
-    port: 31320
+    port: 31011
     protocol: UDP  
   - name: "las2peer-wc"
     port: 8080
@@ -199,17 +199,17 @@ spec:
   ports:
   - name: "las2peer-external-webconnector"
     port: 8080
-    nodePort: 31319
+    nodePort: 31010
   - name: "las2peer-external-config"
     port: 8001
     nodePort: 32318
   - name: "las2peer-external"
-    port: 31320
-    nodePort: 31320
+    port: 31011
+    nodePort: 31011
     protocol: TCP
   - name: "las2peer-ext-pastry-udp"
-    port: 31320
-    nodePort: 31320
+    port: 31011
+    nodePort: 31011
     protocol: UDP
   selector:
     io.kompose.service: las2peer-bootstrap

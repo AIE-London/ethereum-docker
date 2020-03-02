@@ -1,0 +1,22 @@
+apiVersion: networking.k8s.io/v1beta1
+kind: Ingress
+metadata:
+  annotations:
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/custom-http-errors: "418"
+    nginx.ingress.kubernetes.io/default-backend: error-pages
+  name: las2peer-frontend
+  namespace: mobsos
+spec:
+  rules:
+  - host: las2peer.tech4comp.dbis.rwth-aachen.de
+    http:
+      paths:
+      - backend:
+          serviceName: las2peer-p2p-ports
+          servicePort: 8080
+        path: /
+  tls:
+  - hosts:
+    - las2peer.tech4comp.dbis.rwth-aachen.de
+    secretName: nginx-tls
