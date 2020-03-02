@@ -25,11 +25,13 @@ spec:
       - name: mobsos-evaluation-center
         image: mslupczynski/mobsos-evaluation-center
         imagePullPolicy: Always
+        ports:
+          - containerPort: 4200
         env:
         - name: LAS2PEER_PORT
           value: "31509"
         - name: BOOTSTRAP
-          value: "http://tech4comp.dbis.rwth-aachen.de:31319" # http 
+          value: "https://las2peer.tech4comp.dbis.rwth-aachen.de" # http 
         - name: Y_WEBSOCKET
           # value: "l2p-yjs-websockets-server-2.herokuapp.com:1234"
           # value: "cloud10.dbis.rwth-aachen.de:8083"

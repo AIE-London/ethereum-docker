@@ -27,7 +27,7 @@ spec:
         imagePullPolicy: Always
         env: 
         - name: BOOTSTRAP
-          value: "tech4comp.dbis.rwth-aachen.de:31320" # udp
+          value: "tech4comp.dbis.rwth-aachen.de:31011" # udp
         - name: LAS2PEER_ETH_HOST
           value: las2peer-ethnet:8545
         - name: LAS2PEER_PORT
