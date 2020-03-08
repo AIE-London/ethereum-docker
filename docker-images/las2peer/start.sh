@@ -120,6 +120,9 @@ function selectMnemonic {
     fi
 }
 
+#prepare pastry properties
+echo external_address = $(curl -s https://ipinfo.io/ip):${LAS2PEER_PORT} > etc/pastry.properties
+
 echo Starting las2peer node ...
 if [ -n "$LAS2PEER_ETH_HOST" ]; then
     echo ... using ethereum boot procedure: 
