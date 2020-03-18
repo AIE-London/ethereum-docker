@@ -38,7 +38,7 @@ fi
 # actually, never mind, we can just pass the index, that's simpler:
 function selectAccountIndex {
     PEER_NUM=$(hostname | cut -d'-' -f3) # get N out of ethereum-peer-N
-    wallets=(/root/.ethereum/devchain/keystore/*)
+    wallets=(${ETHEREUM_DATA_DIR}/keystore/*)
     # still check that we don't select an index that's too large
     if [[ $PEER_NUM =~ ^[0-9]+$ && $PEER_NUM -lt ${#wallets[@]} ]]; then
         echo $PEER_NUM
@@ -46,6 +46,9 @@ function selectAccountIndex {
         echo 0
     fi
 }
+
+
+cp -R -u -p /root/.ethereum/devchain/keystore ${ETHEREUM_DATA_DIR}/keystore
 
 echo Initializing blockchain from genesis file ...
 geth --datadir=${ETHEREUM_DATA_DIR} init "/root/files/genesis.json"
