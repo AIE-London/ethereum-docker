@@ -13,7 +13,7 @@ ADD app.json /root/eth-net-intelligence-api/app.json
 RUN chmod +x /root/start.sh
 
 COPY ./genesis.json /root/files/genesis.json
-COPY ./keystore/ /root/.ethereum/devchain/keystore
+COPY ./keystore/ /root/keystore
 COPY ./localtime /etc/localtime
 
 WORKDIR /root

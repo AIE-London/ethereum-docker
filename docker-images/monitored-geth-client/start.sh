@@ -47,11 +47,15 @@ function selectAccountIndex {
     fi
 }
 
+if [ ! -d "${ETHEREUM_DATA_DIR}/geth" ]; then
+        echo Copying keystore to ${ETHEREUM_DATA_DIR}/keystore.
+        cp -R -u -p /root/keystore ${ETHEREUM_DATA_DIR}/keystore
+fi
 
-cp -R -u -p /root/.ethereum/devchain/keystore ${ETHEREUM_DATA_DIR}/keystore
-
-echo Initializing blockchain from genesis file ...
-geth --datadir=${ETHEREUM_DATA_DIR} init "/root/files/genesis.json"
+if [ ! -d "${ETHEREUM_DATA_DIR}/geth" ]; then
+        echo Initializing blockchain from genesis file ...
+        geth --datadir ${ETHEREUM_DATA_DIR} init "/root/files/genesis.json"
+fi
 
 COMMON_OPTS="--verbosity $GETH_VERBOSITY --datadir ${ETHEREUM_DATA_DIR} --networkid 456719 --rpc --rpcaddr 0.0.0.0 --rpcapi db,personal,eth,net,web3,miner,admin --rpccorsdomain=* --rpcvhosts=* --ws --wsaddr 0.0.0.0 --wsapi db,personal,eth,net,web3,miner,admin --wsorigins=* --unlock 0,1 --password /dev/null --etherbase $(selectAccountIndex)"
 
@@ -71,6 +75,6 @@ if [ -n "$ETHEREUM_BOOTSTRAP" ]; then
         echo Double check that the bootstrap node is up and accessible.
     fi
 else
-    echo Starting new Ethereum network ...
+    echo Starting Ethereum network ...
     geth $COMMON_OPTS --nodekeyhex 091bd6067cb4612df85d9c1ff85cc47f259ced4d4cd99816b14f35650f59c322 --mine --minerthreads 1
 fi
