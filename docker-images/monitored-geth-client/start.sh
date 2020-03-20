@@ -50,14 +50,13 @@ function selectAccountIndex {
 if [ ! -d "${ETHEREUM_DATA_DIR}/geth" ]; then
         echo Copying keystore to ${ETHEREUM_DATA_DIR}/keystore.
         cp -R -u -p /root/keystore ${ETHEREUM_DATA_DIR}/keystore
-fi
-
-if [ ! -d "${ETHEREUM_DATA_DIR}/geth" ]; then
+        chmod 777 -R ${ETHEREUM_DATA_DIR}/keystore
         echo Initializing blockchain from genesis file ...
-        geth --datadir ${ETHEREUM_DATA_DIR} init "/root/files/genesis.json"
+        geth --datadir ${ETHEREUM_DATA_DIR} init genesis.json
+        chmod 777 -R ${ETHEREUM_DATA_DIR}
 fi
 
-COMMON_OPTS="--verbosity $GETH_VERBOSITY --datadir ${ETHEREUM_DATA_DIR} --networkid 456719 --rpc --rpcaddr 0.0.0.0 --rpcapi db,personal,eth,net,web3,miner,admin --rpccorsdomain=* --rpcvhosts=* --ws --wsaddr 0.0.0.0 --wsapi db,personal,eth,net,web3,miner,admin --wsorigins=* --unlock 0,1 --password /dev/null --etherbase $(selectAccountIndex)"
+COMMON_OPTS="--verbosity $GETH_VERBOSITY --datadir ${ETHEREUM_DATA_DIR} --networkid 456719 --rpc --rpcaddr 0.0.0.0 --rpcapi db,personal,eth,net,web3,miner,admin --rpccorsdomain=* --rpcvhosts=* --ws --wsaddr 0.0.0.0 --wsapi db,personal,eth,net,web3,miner,admin --wsorigins=* --unlock 0,1 --password /dev/null --etherbase $(selectAccountIndex) --gcmode archive"
 
 if [ -n "$ETHEREUM_BOOTSTRAP" ]; then
     echo Attempting to bootstrap Ethereum client ...

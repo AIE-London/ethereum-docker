@@ -10,9 +10,9 @@ RUN cd /root &&\
 
 ADD start.sh /root/start.sh
 ADD app.json /root/eth-net-intelligence-api/app.json
-RUN chmod +x /root/start.sh
+RUN chmod 777 /root/start.sh
 
-COPY ./genesis.json /root/files/genesis.json
+COPY ./genesis.json /root/genesis.json
 COPY ./keystore/ /root/keystore
 COPY ./localtime /etc/localtime
 
