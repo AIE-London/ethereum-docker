@@ -11,8 +11,9 @@ WORKDIR /app-cache/las2peer-registry-contracts
 RUN npm install
 WORKDIR /app-cache
 # RUN git clone https://github.com/rwth-acis/las2peer/ -b develop
-RUN git clone --single-branch --branch master https://github.com/rwth-acis/las2peer/
+RUN git clone https://github.com/rwth-acis/las2peer/
 WORKDIR /app-cache/las2peer
+RUN git checkout tags/v1.0.0
 RUN ant build-only-no-bundle
 
 # LAS2PEER BOOTSTRAP
