@@ -13,7 +13,7 @@ WORKDIR /app-cache
 # RUN git clone https://github.com/rwth-acis/las2peer/ -b develop
 RUN git clone https://github.com/rwth-acis/las2peer/
 WORKDIR /app-cache/las2peer
-RUN git checkout tags/v1.0.1
+RUN git checkout tags/v1.1.0
 RUN ant build-only-no-bundle
 
 # LAS2PEER BOOTSTRAP
