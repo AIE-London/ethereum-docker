@@ -8,16 +8,18 @@ services:
     links:
       - netstats
     entrypoint: /root/start.sh
-    command: '--datadir=~/.ethereum/devchain --nodekeyhex=091bd6067cb4612df85d9c1ff85cc47f259ced4d4cd99816b14f35650f59c322 --rpcapi "db,personal,eth,net,web3" --rpccorsdomain="*" --networkid=456719 --rpc --rpcaddr="0.0.0.0"'
+    command: '--datadir=~/.ethereum/devchain --nodekeyhex=091bd6067cb4612df85d9c1ff85cc47f259ced4d4cd99816b14f35650f59c322 --rpcapi "db,personal,eth,net,web3" --rpccorsdomain="*" --networkid=456719 --rpc --rpcaddr="0.0.0.0" --unlock 0xc0A8e4D217eB85b812aeb1226fAb6F588943C2C2 --password /root/.ethereum/keystore/password --allow-insecure-unlock --miner.gasprice 1 --mine --miner.threads 2 --miner.etherbase 0xc0A8e4D217eB85b812aeb1226fAb6F588943C2C2  --ws --ws.addr="0.0.0.0" --ws.origins="*" --ws.api "admin,eth,miner,personal,web3"'
     volumes:
       - ./files/password:/root/files/password:ro
       - ./files/genesis.json:/root/files/genesis.json:ro
       - ./files/keystore:/root/.ethereum/devchain/keystore:rw
       - /etc/localtime:/etc/localtime:ro
+      - ./keys:/root/.ethereum/keystore
     ports:
       - "30303:30303"
       - "30303:30303/udp"
       - "8545:8545"
+      - "8546:8546"
   eth:
     build: monitored-geth-client
     restart: on-failure
