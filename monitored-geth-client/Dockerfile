@@ -1,6 +1,6 @@
 FROM ethereum/client-go
 
-RUN apk add --update git bash nodejs nodejs-npm perl
+RUN apk add --update --no-cache --repository http://dl-cdn.alpinelinux.org/alpine/v3.7/main/ nodejs=8.9.3-r1 git bash perl
 
 RUN cd /root &&\
     git clone https://github.com/cubedro/eth-net-intelligence-api &&\
