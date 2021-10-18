@@ -31,10 +31,10 @@ services:
             - ./files/genesis.json:/root/files/genesis.json:ro
             - ./files/keystore:/root/.ethereum/devchain/keystore:rw
             - /etc/localtime:/etc/localtime:ro
-        command: '--datadir=~/.ethereum/devchain --networkid=69696969 --bootnodes="enode://288b97262895b1c7ec61cf314c2e2004407d0a5dc77566877aad1f2a36659c8b698f4b56fd06c4a0c0bf007b4cfb3e7122d907da3b005fa90e724441902eb19e@XXX:30303" --ws --ws.addr="0.0.0.0" --ws.origins="*" --ws.api "admin,eth,miner,personal,web3"'
+        command: '--datadir=~/.ethereum/devchain --networkid=69696969 --bootnodes="enode://288b97262895b1c7ec61cf314c2e2004407d0a5dc77566877aad1f2a36659c8b698f4b56fd06c4a0c0bf007b4cfb3e7122d907da3b005fa90e724441902eb19e@XXX:30303" --unlock 0xc0A8e4D217eB85b812aeb1226fAb6F588943C2C2 --password /root/.ethereum/devchain/keystore/password --allow-insecure-unlock --miner.gasprice 1 --mine --miner.threads 2 --miner.etherbase 0xc0A8e4D217eB85b812aeb1226fAb6F588943C2C2   --ws --ws.addr="0.0.0.0" --ws.origins="*" --ws.api "admin,eth,miner,personal,web3"'
         ports:
-            - "9000+:8545"
-            - "9100+:8546"
+            - "8545"
+            - "8546"
     netstats:
         build: eth-netstats
         restart: on-failure
